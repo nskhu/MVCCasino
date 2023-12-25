@@ -1,22 +1,27 @@
+using System.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using MVCCasino.Data;
+using MVCCasino.Data.Repository;
+using MVCCasino.Data.Repository.Dapper;
 using MVCCasino.Models;
+using MVCCasino.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+builder.Services.AddScoped<IWalletRepository, WalletRepositoryDapper>();
+builder.Services.AddTransient<IDbConnection>(_ => new SqlConnection(connectionString));
+builder.Services.AddTransient<IWalletService, WalletService>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
-// builder.Services.AddIdentity<User, IdentityRole>()
-//     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

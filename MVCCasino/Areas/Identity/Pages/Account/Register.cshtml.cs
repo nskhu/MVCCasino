@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using MVCCasino.Models;
+using MVCCasino.Services;
 
 namespace MVCCasino.Areas.Identity.Pages.Account;
 
@@ -24,13 +25,15 @@ public class RegisterModel : PageModel
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager<User> _userManager;
     private readonly IUserStore<User> _userStore;
+    private readonly IWalletService _walletService;
 
     public RegisterModel(
         UserManager<User> userManager,
         IUserStore<User> userStore,
         SignInManager<User> signInManager,
         ILogger<RegisterModel> logger,
-        IEmailSender emailSender)
+        IEmailSender emailSender,
+        IWalletService walletService)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -38,6 +41,7 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
+        _walletService = walletService;
     }
 
     /// <summary>
@@ -87,6 +91,7 @@ public class RegisterModel : PageModel
                 _logger.LogInformation("User created a new account with password.");
 
                 var userId = await _userManager.GetUserIdAsync(user);
+                _walletService.CreateWalletByUserId(user.Id);
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                 var callbackUrl = Url.Page(
