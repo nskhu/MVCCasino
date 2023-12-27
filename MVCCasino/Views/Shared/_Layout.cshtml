@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@inject SignInManager<User> SignInManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -25,6 +28,22 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <button id="depositBtn" onclick="deposit()" class="nav-link btn btn-link">Deposit</button>
+                            </li>
+                            <li class="nav-item">
+                                <button id="withdrawBtn" onclick="withdraw()" class="nav-link btn btn-link">Withdraw</button>
+                            </li>
+                        </ul>
+
+                        <!-- Show current balance -->
+                        <span class="navbar-text">
+                            Current Balance: 121
+                        </span>
+                    }
                 </ul>
                 <partial name="_LoginPartial"/>
             </div>
@@ -45,6 +64,9 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
-@await RenderSectionAsync("Scripts", required: false)
+<script src="~/js/deposit.js"></script>
+<script src="~/js/withdraw.js"></script>
+
+@await RenderSectionAsync("Scripts", false)
 </body>
 </html>

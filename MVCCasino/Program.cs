@@ -13,7 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddScoped<IWalletRepository, WalletRepositoryDapper>();
+builder.Services.AddTransient<IWalletRepository, WalletRepositoryDapper>();
+builder.Services.AddTransient<ITransactionRepository, TransactionRepositoryDapper>();
 builder.Services.AddTransient<IDbConnection>(_ => new SqlConnection(connectionString));
 builder.Services.AddTransient<IWalletService, WalletService>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -46,8 +47,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    "default",
+    "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();
