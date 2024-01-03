@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 using MVCCasino.Services;
 
 namespace MVCCasino.Controllers
@@ -14,15 +15,12 @@ namespace MVCCasino.Controllers
                 return Unauthorized(new { message = "User is not authenticated." });
             }
 
-            // Validate the amount (you can add more complex validations as needed)
-            // TODO check for amount balance numeric
             if (amount <= 0)
             {
                 return BadRequest(new { message = "Invalid deposit amount." });
             }
 
-            var userId = User.Identity.Name;
-
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var depositResult = transactionService.ProcessDeposit(userId, amount);
 
             if (depositResult.Success)

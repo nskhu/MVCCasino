@@ -41,6 +41,6 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
     public void Deposit(string userId, decimal amount)
     {
         var parameters = new { UserId = userId, Amount = amount };
-        _dbConnection.Execute("DepositStoredProcedure", parameters, commandType: CommandType.StoredProcedure);
+        _dbConnection.Execute("DepositProcedure", parameters, commandType: CommandType.StoredProcedure);
     }
 }

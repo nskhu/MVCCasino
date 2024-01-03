@@ -22,9 +22,8 @@ public class TransactionService(IWalletRepository walletRepository) : ITransacti
         }
         catch (DbException dbEx)
         {
-            // Log the database-related exception
             Console.Error.WriteLine($"Deposit failed due to a database error: {dbEx.Message}");
-            return new DepositResponse { Success = false, ErrorMessage = "Deposit failed due to a database error." };
+            return new DepositResponse { Success = false, ErrorMessage = "Deposit failed due to a database error. " + dbEx.Message};
         }
     }
 }
