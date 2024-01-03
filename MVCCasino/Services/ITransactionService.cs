@@ -9,4 +9,6 @@ public interface ITransactionService
     DepositResponse ProcessDeposit(string userId, decimal amount);
 
     WithdrawResponse ProcessWithdraw(string userId, decimal amount);
+
+    decimal GetCurrentBalanceByUserId(string userId);
 }

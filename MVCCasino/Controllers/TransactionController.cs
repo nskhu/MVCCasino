@@ -29,14 +29,19 @@ public class TransactionController(ITransactionService transactionService) : Con
         if (User.Identity is not { IsAuthenticated: true })
             return Unauthorized(new { message = "User is not authenticated." });
 
-        // TODO check for amount < balance
-        if (amount <= 0) return BadRequest(new { message = "Invalid deposit amount." });
-
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentBalance = transactionService.GetCurrentBalanceByUserId(userId);
+        if (amount > currentBalance)
+            return BadRequest(new { message = "Withdrawal amount exceeds available balance." });
+
+        if (amount <= 0)
+            return BadRequest(new { message = "Invalid withdraw amount." });
+
         var withdrawResult = transactionService.ProcessWithdraw(userId, amount);
 
         if (withdrawResult.Success)
             return Ok(new { success = true, message = "Withdraw successful." });
+
         return BadRequest(new { success = false, message = withdrawResult.ErrorMessage });
     }
 }

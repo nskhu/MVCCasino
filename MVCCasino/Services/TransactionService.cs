@@ -42,4 +42,9 @@ public class TransactionService(IWalletRepository walletRepository) : ITransacti
                 { Success = false, ErrorMessage = "Withdraw failed due to a database error. " + dbEx.Message };
         }
     }
+
+    public decimal GetCurrentBalanceByUserId(string userId)
+    {
+        return walletRepository.GetWalletByUserId(userId).CurrentBalance;
+    }
 }
