@@ -1,18 +1,22 @@
 ﻿function withdraw() {
-    // You may want to show a modal or form to gather withdraw details from the user
     let withdrawalAmount = prompt("Enter withdrawal amount:");
 
     if (withdrawalAmount !== null && withdrawalAmount !== "") {
         console.log("Withdrawal Amount: " + withdrawalAmount);
+
         $.ajax({
             type: "POST",
-            url: "/api/wallet/withdraw",
+            url: "/api/Transaction/withdraw",
+            data: {amount: withdrawalAmount},
             success: function (data) {
-                // Handle success, e.g., update UI
-                console.log("Withdraw successful");
+                if (data.success) {
+                    console.log(data.message);
+                    // TODO: current balance update on ui ?
+                } else {
+                    console.error(data.message);
+                }
             },
             error: function (error) {
-                // Handle error
                 console.error("Withdraw failed", error);
             }
         });

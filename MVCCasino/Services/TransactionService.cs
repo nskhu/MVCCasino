@@ -23,7 +23,23 @@ public class TransactionService(IWalletRepository walletRepository) : ITransacti
         catch (DbException dbEx)
         {
             Console.Error.WriteLine($"Deposit failed due to a database error: {dbEx.Message}");
-            return new DepositResponse { Success = false, ErrorMessage = "Deposit failed due to a database error. " + dbEx.Message};
+            return new DepositResponse
+                { Success = false, ErrorMessage = "Deposit failed due to a database error. " + dbEx.Message };
+        }
+    }
+
+    public WithdrawResponse ProcessWithdraw(string userId, decimal amount)
+    {
+        try
+        {
+            walletRepository.Withdraw(userId, amount);
+            return new WithdrawResponse { Success = true };
+        }
+        catch (DbException dbEx)
+        {
+            Console.Error.WriteLine($"Withdraw failed due to a database error: {dbEx.Message}");
+            return new WithdrawResponse
+                { Success = false, ErrorMessage = "Withdraw failed due to a database error. " + dbEx.Message };
         }
     }
 }

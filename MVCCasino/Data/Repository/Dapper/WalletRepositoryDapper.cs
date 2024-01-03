@@ -6,7 +6,8 @@ namespace MVCCasino.Data.Repository.Dapper;
 
 public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletRepository
 {
-    private readonly IDbConnection _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
+    private readonly IDbConnection
+        _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
 
     public int Create(Wallet wallet)
     {
@@ -37,10 +38,16 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
         var getByUserIdQuery = "SELECT * FROM Wallets WHERE UserId = @UserId";
         return _dbConnection.QueryFirstOrDefault<Wallet>(getByUserIdQuery, new { UserId = userId });
     }
-    
+
     public void Deposit(string userId, decimal amount)
     {
         var parameters = new { UserId = userId, Amount = amount };
         _dbConnection.Execute("DepositProcedure", parameters, commandType: CommandType.StoredProcedure);
+    }
+
+    public void Withdraw(string userId, decimal amount)
+    {
+        var parameters = new { UserId = userId, Amount = amount };
+        _dbConnection.Execute("WithdrawProcedure", parameters, commandType: CommandType.StoredProcedure);
     }
 }
