@@ -3,18 +3,23 @@
 
     if (depositAmount !== null && depositAmount !== "") {
         console.log("Deposit Amount: " + depositAmount);
+
         $.ajax({
             type: "POST",
-            url: "/api/wallet/deposit",
+            url: "/api/Transaction/deposit",
+            data: { amount: depositAmount },
             success: function (data) {
-                // Handle success, e.g., update UI
-                console.log("Deposit successful");
+                if (data.success) {
+                    console.log(data.message);
+                   // TODO: current balance update on ui ?
+                } else {
+                    console.error(data.message);
+                }
             },
             error: function (error) {
-                // Handle error
                 console.error("Deposit failed", error);
             }
-        })
+        });
     } else {
         console.log("Deposit canceled or invalid input");
     }

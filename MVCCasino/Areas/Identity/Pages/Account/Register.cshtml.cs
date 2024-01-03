@@ -25,7 +25,7 @@ public class RegisterModel : PageModel
     private readonly SignInManager<User> _signInManager;
     private readonly UserManager<User> _userManager;
     private readonly IUserStore<User> _userStore;
-    private readonly IWalletService _walletService;
+    private readonly ITransactionService _transactionService;
 
     public RegisterModel(
         UserManager<User> userManager,
@@ -33,7 +33,7 @@ public class RegisterModel : PageModel
         SignInManager<User> signInManager,
         ILogger<RegisterModel> logger,
         IEmailSender emailSender,
-        IWalletService walletService)
+        ITransactionService transactionService)
     {
         _userManager = userManager;
         _userStore = userStore;
@@ -41,7 +41,7 @@ public class RegisterModel : PageModel
         _signInManager = signInManager;
         _logger = logger;
         _emailSender = emailSender;
-        _walletService = walletService;
+        _transactionService = transactionService;
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public class RegisterModel : PageModel
                 _logger.LogInformation("User created a new account with password.");
 
                 var userId = await _userManager.GetUserIdAsync(user);
-                _walletService.CreateWalletByUserId(user.Id);
+                _transactionService.CreateWalletByUserId(user.Id);
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                 var callbackUrl = Url.Page(

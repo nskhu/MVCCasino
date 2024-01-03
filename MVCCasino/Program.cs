@@ -16,7 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddTransient<IWalletRepository, WalletRepositoryDapper>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepositoryDapper>();
 builder.Services.AddTransient<IDbConnection>(_ => new SqlConnection(connectionString));
-builder.Services.AddTransient<IWalletService, WalletService>();
+builder.Services.AddTransient<ITransactionService, TransactionService>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
