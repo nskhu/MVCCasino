@@ -32,10 +32,10 @@
                     {
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <button id="depositBtn" onclick="deposit()" class="nav-link btn btn-link">Deposit</button>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Transaction" asp-action="DepositView">Deposit</a>
                             </li>
                             <li class="nav-item">
-                                <button id="withdrawBtn" onclick="withdraw()" class="nav-link btn btn-link">Withdraw</button>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Transaction" asp-action="WithdrawView">Withdraw</a>
                             </li>
                         </ul>
                         <span class="navbar-text" id="currentBalance">

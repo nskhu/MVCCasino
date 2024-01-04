@@ -1,26 +1,24 @@
-﻿function withdraw() {
-    let withdrawalAmount = prompt("Enter withdrawal amount:");
-
-    if (withdrawalAmount !== null && withdrawalAmount !== "") {
-        console.log("Withdrawal Amount: " + withdrawalAmount);
+﻿$(document).ready(function () {
+    $("#withdrawButton").unbind("click").click(function () {
+        console.log("starting ajax call for deposit");
+        event.preventDefault();
+        var amount = $("#amount").val();
 
         $.ajax({
-            type: "POST",
             url: "/api/Transaction/withdraw",
-            data: {amount: withdrawalAmount},
-            success: function (data) {
-                if (data.success) {
-                    console.log(data.message);
+            type: "POST",
+            data: {amount: amount},
+            success: function (result) {
+                if (result.success) {
+                    console.log(result.message);
                     updateCurrentBalance();
                 } else {
-                    console.error(data.message);
+                    console.error(result.message);
                 }
             },
             error: function (error) {
                 console.error("Withdraw failed", error);
             }
         });
-    } else {
-        console.log("Withdrawal canceled or invalid input");
-    }
-}
+    });
+});

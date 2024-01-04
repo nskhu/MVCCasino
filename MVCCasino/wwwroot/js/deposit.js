@@ -1,26 +1,24 @@
-﻿function deposit() {
-    let depositAmount = prompt("Enter deposit amount:");
-
-    if (depositAmount !== null && depositAmount !== "") {
-        console.log("Deposit Amount: " + depositAmount);
+﻿$(document).ready(function () {
+    $("#depositButton").unbind("click").click(function () {
+        console.log("starting ajax call for deposit");
+        event.preventDefault();
+        var amount = $("#amount").val();
 
         $.ajax({
-            type: "POST",
             url: "/api/Transaction/deposit",
-            data: {amount: depositAmount},
-            success: function (data) {
-                if (data.success) {
-                    console.log(data.message);
+            type: "POST",
+            data: {amount: amount},
+            success: function (result) {
+                if (result.success) {
+                    console.log(result.message);
                     updateCurrentBalance();
                 } else {
-                    console.error(data.message);
+                    console.error(result.message);
                 }
             },
             error: function (error) {
                 console.error("Deposit failed", error);
             }
         });
-    } else {
-        console.log("Deposit canceled or invalid input");
-    }
-}
+    });
+});

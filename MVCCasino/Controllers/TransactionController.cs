@@ -7,6 +7,18 @@ namespace MVCCasino.Controllers;
 [Route("api/[controller]")]
 public class TransactionController(ITransactionService transactionService) : Controller
 {
+    [HttpGet("DepositView")]
+    public IActionResult DepositView()
+    {
+        return View();
+    }
+    
+    [HttpGet("WithdrawView")]
+    public IActionResult WithdrawView()
+    {
+        return View();
+    }
+    
     [HttpPost("deposit")]
     public IActionResult Deposit(decimal amount)
     {
@@ -52,5 +64,4 @@ public class TransactionController(ITransactionService transactionService) : Con
         var currentBalance = transactionService.GetCurrentBalanceByUserId(userId);
         return Json(new { currentBalance });
     }
-
 }

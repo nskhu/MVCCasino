@@ -1,0 +1,24 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Withdraw Page";
+}
+
+<head>
+    <link rel="stylesheet" href="@Url.Content("~/css/withdraw.css")"/>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/withdraw.js"></script>
+    <title>Withdraw</title>
+</head>
+
+<body>
+<div class="withdraw-container">
+    <h2>Withdraw Funds</h2>
+    <form action="" method="post">
+        <label for="amount">Amount:</label>
+        <input type="text" id="amount" name="amount" required>
+        <button type="button" id="withdrawButton">Withdraw</button>
+    </form>
+
+    <a href="/Home" class="back-button">Back</a>
+</div>
+</body>
