@@ -38,10 +38,8 @@
                                 <button id="withdrawBtn" onclick="withdraw()" class="nav-link btn btn-link">Withdraw</button>
                             </li>
                         </ul>
-
-                        <!-- Show current balance -->
-                        <span class="navbar-text">
-                            Current Balance: 121
+                        <span class="navbar-text" id="currentBalance">
+                            Current Balance: Loading...
                         </span>
                     }
                 </ul>
@@ -66,6 +64,7 @@
 <script src="~/js/site.js" asp-append-version="true"></script>
 <script src="~/js/deposit.js"></script>
 <script src="~/js/withdraw.js"></script>
+<script src="~/js/currentBalance.js"></script>
 
 @await RenderSectionAsync("Scripts", false)
 </body>

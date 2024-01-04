@@ -11,7 +11,7 @@
             success: function (data) {
                 if (data.success) {
                     console.log(data.message);
-                    // TODO: current balance update on ui ?
+                    updateCurrentBalance();
                 } else {
                     console.error(data.message);
                 }

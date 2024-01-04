@@ -44,4 +44,13 @@ public class TransactionController(ITransactionService transactionService) : Con
 
         return BadRequest(new { success = false, message = withdrawResult.ErrorMessage });
     }
+    
+    [HttpGet("balance")]
+    public IActionResult GetCurrentBalance()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var currentBalance = transactionService.GetCurrentBalanceByUserId(userId);
+        return Json(new { currentBalance });
+    }
+
 }

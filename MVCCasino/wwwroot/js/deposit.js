@@ -7,11 +7,11 @@
         $.ajax({
             type: "POST",
             url: "/api/Transaction/deposit",
-            data: { amount: depositAmount },
+            data: {amount: depositAmount},
             success: function (data) {
                 if (data.success) {
                     console.log(data.message);
-                   // TODO: current balance update on ui ?
+                    updateCurrentBalance();
                 } else {
                     console.error(data.message);
                 }
