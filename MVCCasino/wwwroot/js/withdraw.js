@@ -11,7 +11,7 @@
             success: function (result) {
                 if (result.success) {
                     console.log(result.message);
-                    updateCurrentBalance();
+                    window.location.href = result.redirectUrl;
                 } else {
                     console.error(result.message);
                 }

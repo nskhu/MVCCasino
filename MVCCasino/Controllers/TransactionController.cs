@@ -12,16 +12,18 @@ public class TransactionController(ITransactionService transactionService) : Con
     {
         return View();
     }
-    
+
     [HttpGet("WithdrawView")]
     public IActionResult WithdrawView()
     {
         return View();
     }
-    
+
     [HttpPost("deposit")]
     public IActionResult Deposit(decimal amount)
     {
+        Console.WriteLine("start transaction controller deposit action");
+
         if (User.Identity is not { IsAuthenticated: true })
             return Unauthorized(new { message = "User is not authenticated." });
 
@@ -31,7 +33,12 @@ public class TransactionController(ITransactionService transactionService) : Con
         var depositResult = transactionService.ProcessDeposit(userId, amount);
 
         if (depositResult.Success)
-            return Ok(new { success = true, message = "Deposit successful." });
+        {
+            Console.WriteLine("in transaction controller deposit result is success, return url to js");
+            var redirectUrl = Url.Action("Index", "Home");
+            return Ok(new { success = true, message = "Deposit successful.", redirectUrl });
+        }
+
         return BadRequest(new { success = false, message = depositResult.ErrorMessage });
     }
 
@@ -52,11 +59,14 @@ public class TransactionController(ITransactionService transactionService) : Con
         var withdrawResult = transactionService.ProcessWithdraw(userId, amount);
 
         if (withdrawResult.Success)
-            return Ok(new { success = true, message = "Withdraw successful." });
+        {
+            var redirectUrl = Url.Action("Index", "Home");
+            return Ok(new { success = true, message = "Withdraw successful.", redirectUrl });
+        }
 
         return BadRequest(new { success = false, message = withdrawResult.ErrorMessage });
     }
-    
+
     [HttpGet("balance")]
     public IActionResult GetCurrentBalance()
     {
