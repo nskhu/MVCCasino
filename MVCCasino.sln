@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVCCasino", "MVCCasino\MVCCasino.csproj", "{500DD58C-4637-467B-96E7-19EDD19E547E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVCBank", "MVCBank\MVCBank.csproj", "{B6F23126-038B-463D-BDFD-A7D095DA15FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{500DD58C-4637-467B-96E7-19EDD19E547E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{500DD58C-4637-467B-96E7-19EDD19E547E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{500DD58C-4637-467B-96E7-19EDD19E547E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6F23126-038B-463D-BDFD-A7D095DA15FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6F23126-038B-463D-BDFD-A7D095DA15FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6F23126-038B-463D-BDFD-A7D095DA15FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6F23126-038B-463D-BDFD-A7D095DA15FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
