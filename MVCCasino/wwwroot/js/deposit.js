@@ -14,7 +14,7 @@
                     // Make a second Ajax call to Bank/DepositApiController
                     console.log("deposit js - starting 2nd ajax call for bank api");
                     $.ajax({
-                        url: "http://localhost:5264/api/DepositApi/GetRedirectLink", // Adjust the URL to match your Bank project
+                        url: "http://localhost:5264/api/DepositApi/GetRedirectLink",
                         type: "POST",
                         data: { amount: amount },
                         success: function (bankResult) {
