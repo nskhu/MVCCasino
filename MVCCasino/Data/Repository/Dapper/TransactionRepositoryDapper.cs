@@ -4,21 +4,18 @@ using MVCCasino.Models;
 
 namespace MVCCasino.Data.Repository.Dapper;
 
-public class TransactionRepositoryDapper : ITransactionRepository
+public class TransactionRepositoryDapper(IDbConnection dbConnection) : ITransactionRepository
 {
-    private readonly IDbConnection _dbConnection;
-
-    public TransactionRepositoryDapper(IDbConnection dbConnection)
-    {
-        _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
-    }
+    private readonly IDbConnection _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
 
     public int Create(Transaction transaction)
     {
         var insertQuery =
             "INSERT INTO Transactions (UserId, Amount, TransactionType, TransactionStatus, CurrentBalance, TransactionDate) " +
+            "OUTPUT INSERTED.TransactionId " +
             "VALUES (@UserId, @Amount, @TransactionType, @TransactionStatus, @CurrentBalance, @TransactionDate)";
-        return _dbConnection.Execute(insertQuery, transaction);
+    
+        return _dbConnection.QuerySingle<int>(insertQuery, transaction);
     }
 
     public Transaction GetById(int transactionId)

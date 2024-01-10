@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using MVCCasino.Enums;
 using MVCCasino.Services;
 
 namespace MVCCasino.Controllers;
@@ -17,6 +18,23 @@ public class TransactionController(ITransactionService transactionService) : Con
     public IActionResult WithdrawView()
     {
         return View();
+    }
+
+    [HttpPost("CreateDepositTransaction")]
+    public IActionResult CreateDepositTransaction(decimal amount)
+    {
+        Console.WriteLine("start transaction controller deposit action");
+
+        if (User.Identity is not { IsAuthenticated: true })
+            return Unauthorized(new { message = "User is not authenticated." });
+
+        if (amount <= 0) return BadRequest(new { message = "Invalid deposit amount." });
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var transactionId = transactionService.CreateNewTransaction(userId, amount, TransactionTypeEnum.Deposit, 
+            TransactionStatusEnum.Pending, transactionService.GetCurrentBalanceByUserId(userId));
+
+        return Ok(new { success = true, message = "transaction saved successfully.", transactionId });
     }
 
     [HttpPost("deposit")]
@@ -72,6 +90,16 @@ public class TransactionController(ITransactionService transactionService) : Con
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var currentBalance = transactionService.GetCurrentBalanceByUserId(userId);
+
         return Json(new { currentBalance });
+    }
+
+    [HttpGet("transactions")]
+    public IActionResult GetTransactionHistory()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var transactions = transactionService.GetTransactionHistoryByUserId(userId);
+
+        return View("TransactionHistory", transactions);
     }
 }

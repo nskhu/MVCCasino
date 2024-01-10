@@ -1,11 +1,14 @@
 ﻿using System.Data.Common;
 using MVCCasino.Data.Repository;
+using MVCCasino.Enums;
 using MVCCasino.Models;
 using MVCCasino.Models.Responses;
 
 namespace MVCCasino.Services;
 
-public class TransactionService(IWalletRepository walletRepository) : ITransactionService
+public class TransactionService(
+    IWalletRepository walletRepository,
+    ITransactionRepository transactionRepository) : ITransactionService
 {
     public void CreateWalletByUserId(string userId)
     {
@@ -46,5 +49,25 @@ public class TransactionService(IWalletRepository walletRepository) : ITransacti
     public decimal GetCurrentBalanceByUserId(string userId)
     {
         return walletRepository.GetWalletByUserId(userId).CurrentBalance;
+    }
+
+    public IEnumerable<Transaction> GetTransactionHistoryByUserId(string userId)
+    {
+        return transactionRepository.GetTransactionsByUserId(userId);
+    }
+
+    public int CreateNewTransaction(string userId, decimal amount, TransactionTypeEnum transactionType, TransactionStatusEnum transactionStatus, decimal currentBalance)
+    {
+        var transaction = new Transaction
+        {
+            UserId = userId,
+            Amount = amount,
+            CurrentBalance = currentBalance,
+            TransactionDate = DateTime.Now,
+            TransactionStatus = transactionStatus,
+            TransactionType = transactionType
+        };
+
+        return transactionRepository.Create(transaction);
     }
 }

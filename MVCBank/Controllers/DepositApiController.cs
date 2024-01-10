@@ -9,7 +9,13 @@ public class DepositApiController : ControllerBase
     [HttpPost("GetRedirectLink")]
     public IActionResult GetRedirectLink()
     {
-        var redirectUrl = "https://example.com/payment";
-        return Ok(new { success = true, message = "Deposit successful.", redirectUrl });
+        var bankPaymentViewUrl = GenerateBankPaymentViewUrl();
+
+        return Ok(new { success = true, message = "URL generated successfully.", redirectUrl = bankPaymentViewUrl });
+    }
+
+    private string GenerateBankPaymentViewUrl()
+    {
+        return "http://localhost:5264/payment/paymentview";
     }
 }
