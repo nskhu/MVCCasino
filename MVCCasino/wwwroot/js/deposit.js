@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
     var transactionId;
+    var userId;
     var amount;
 
     $("#depositButton").unbind("click").click(function () {
@@ -14,6 +15,7 @@
                 if (result.success) {
                     console.log('deposit js - ' + result.message);
                     transactionId = result.transactionId;
+                    userId = result.userId;
 
                     // Make a second Ajax call to Bank/DepositApiController
                     console.log("deposit js - starting 2nd ajax call for bank api");
@@ -24,7 +26,10 @@
                             if (bankResult.success) {
                                 console.log('Deposit in Bank successful');
                                 console.log('url from bank: ' + bankResult.redirectUrl);
-                                window.location.href = bankResult.redirectUrl + '?amount=' + amount + '&transactionId=' + transactionId;
+                                window.location.href = bankResult.redirectUrl 
+                                    + '?amount=' + amount 
+                                    + '&transactionId=' + transactionId
+                                    + '&userId=' + userId;
                             } else {
                                 console.error('deposit js - Deposit in Bank failed', bankResult.message);
                             }

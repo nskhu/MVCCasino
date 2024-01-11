@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Dapper;
+using MVCCasino.Enums;
 using MVCCasino.Models;
 
 namespace MVCCasino.Data.Repository.Dapper;
@@ -39,15 +40,15 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
         return _dbConnection.QueryFirstOrDefault<Wallet>(getByUserIdQuery, new { UserId = userId });
     }
 
-    public void Deposit(string userId, decimal amount)
-    {
-        var parameters = new { UserId = userId, Amount = amount };
-        _dbConnection.Execute("DepositProcedure", parameters, commandType: CommandType.StoredProcedure);
-    }
-
     public void Withdraw(string userId, decimal amount)
     {
         var parameters = new { UserId = userId, Amount = amount };
         _dbConnection.Execute("WithdrawProcedure", parameters, commandType: CommandType.StoredProcedure);
+    }
+
+    public void Deposit(TransactionStatusEnum isSuccess, int transactionId, string userId)
+    {
+        var parameters = new { IsSuccess = isSuccess, TransactionId = transactionId, UserId = userId };
+        _dbConnection.Execute("DepositProcedure", parameters, commandType: CommandType.StoredProcedure);
     }
 }

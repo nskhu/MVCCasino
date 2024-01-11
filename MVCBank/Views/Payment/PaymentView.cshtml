@@ -19,9 +19,13 @@
 <div class="payment-container">
     <label for="transactionIdInput">Transaction ID:</label>
     <input id="transactionIdInput" class="payment-input" type="text" readonly value="@ViewData["TransactionId"]"/>
+    <label for="userIdInput">User ID:</label>
+    <input id="userIdInput" class="payment-input" type="text" readonly value="@ViewData["UserId"]"/>
     <label for="amountInput">Amount:</label>
     <input id="amountInput" class="payment-input" type="text" readonly value="@ViewData["Amount"]"/>
+    <label for="fullNameInput">Full Name:</label>
     <input id="fullNameInput" class="payment-input" type="text" placeholder="Full Name"/>
+    <label for="cardNumberInput">Card Number:</label>
     <input id="cardNumberInput" class="payment-input" type="text" placeholder="Card Number"/>
 
     <button class="payment-button" id="paymentButton">Pay</button>

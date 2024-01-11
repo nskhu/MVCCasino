@@ -34,21 +34,15 @@ public class TransactionController(ITransactionService transactionService) : Con
         var transactionId = transactionService.CreateNewTransaction(userId, amount, TransactionTypeEnum.Deposit, 
             TransactionStatusEnum.Pending, transactionService.GetCurrentBalanceByUserId(userId));
 
-        return Ok(new { success = true, message = "transaction saved successfully.", transactionId });
+        return Ok(new { success = true, message = "transaction saved successfully.", transactionId, userId });
     }
 
     [HttpPost("deposit")]
-    public IActionResult Deposit(decimal amount)
+    public IActionResult Deposit(bool isSuccess, int transactionId, string userId)
     {
         Console.WriteLine("start transaction controller deposit action");
 
-        if (User.Identity is not { IsAuthenticated: true })
-            return Unauthorized(new { message = "User is not authenticated." });
-
-        if (amount <= 0) return BadRequest(new { message = "Invalid deposit amount." });
-
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var depositResult = transactionService.ProcessDeposit(userId, amount);
+        var depositResult = transactionService.ProcessDeposit(isSuccess, transactionId, userId);
 
         if (depositResult.Success)
         {
@@ -101,5 +95,18 @@ public class TransactionController(ITransactionService transactionService) : Con
         var transactions = transactionService.GetTransactionHistoryByUserId(userId);
 
         return View("TransactionHistory", transactions);
+    }
+
+    [HttpPost("ProcessBankPayment")]
+    public IActionResult ProcessBankPayment(bool isSuccess, int transactionId)
+    {
+        return null;
+        /*
+         * am metodis nacvlad gamoviyenot deposit metodi
+         * depozit metods gadaeces: amount, transaction id, userid
+         *
+         * iqamde payment.js -s transaction id stan ertad gadaeces userid.
+         * da transactionid stan ertad ukan daabrunos amount da userid.
+         */
     }
 }

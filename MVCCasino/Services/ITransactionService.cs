@@ -7,9 +7,7 @@ namespace MVCCasino.Services;
 public interface ITransactionService
 {
     void CreateWalletByUserId(string userId);
-
-    DepositResponse ProcessDeposit(string userId, decimal amount);
-
+    
     WithdrawResponse ProcessWithdraw(string userId, decimal amount);
 
     decimal GetCurrentBalanceByUserId(string userId);
@@ -17,4 +15,5 @@ public interface ITransactionService
     IEnumerable<Transaction> GetTransactionHistoryByUserId(string userId);
 
     int CreateNewTransaction(String userId, decimal amount, TransactionTypeEnum transactionType, TransactionStatusEnum transactionStatus, decimal currentBalance);
+    DepositResponse ProcessDeposit(bool isSuccess, int transactionId, string userId);
 }

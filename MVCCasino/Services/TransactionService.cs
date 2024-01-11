@@ -16,21 +16,6 @@ public class TransactionService(
         walletRepository.Create(wallet);
     }
 
-    public DepositResponse ProcessDeposit(string userId, decimal amount)
-    {
-        try
-        {
-            walletRepository.Deposit(userId, amount);
-            return new DepositResponse { Success = true };
-        }
-        catch (DbException dbEx)
-        {
-            Console.Error.WriteLine($"Deposit failed due to a database error: {dbEx.Message}");
-            return new DepositResponse
-                { Success = false, ErrorMessage = "Deposit failed due to a database error. " + dbEx.Message };
-        }
-    }
-
     public WithdrawResponse ProcessWithdraw(string userId, decimal amount)
     {
         try
@@ -69,5 +54,20 @@ public class TransactionService(
         };
 
         return transactionRepository.Create(transaction);
+    }
+
+    public DepositResponse ProcessDeposit(bool isSuccess, int transactionId, string userId)
+    {
+        try
+        {
+            walletRepository.Deposit(isSuccess ? TransactionStatusEnum.Approved : TransactionStatusEnum.Rejected, transactionId, userId);
+            return new DepositResponse { Success = true };
+        }
+        catch (DbException dbEx)
+        {
+            Console.Error.WriteLine($"Deposit failed due to a database error: {dbEx.Message}");
+            return new DepositResponse
+                { Success = false, ErrorMessage = "Deposit failed due to a database error. " + dbEx.Message };
+        }
     }
 }
