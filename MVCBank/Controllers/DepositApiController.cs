@@ -16,6 +16,6 @@ public class DepositApiController : ControllerBase
 
     private string GenerateBankPaymentViewUrl()
     {
-        return "http://localhost:5264/payment/paymentview";
+        return "http://localhost:5264/PaymentView";
     }
 }

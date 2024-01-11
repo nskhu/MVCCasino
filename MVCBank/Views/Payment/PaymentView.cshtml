@@ -6,22 +6,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/css/payment.css" />
+    <link rel="stylesheet" href="~/css/payment.css"/>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/payment.js"></script>
+    <title>Payment</title>
 </head>
 <body>
 
 <div class="payment-container">
-    <p>Transaction ID: @ViewData["TransactionId"]</p>
-    <p>Amount: @ViewData["Amount"]</p>
+    <label for="transactionIdInput">Transaction ID:</label>
+    <input id="transactionIdInput" class="payment-input" type="text" readonly value="@ViewData["TransactionId"]"/>
+    <label for="amountInput">Amount:</label>
+    <input id="amountInput" class="payment-input" type="text" readonly value="@ViewData["Amount"]"/>
+    <input id="fullNameInput" class="payment-input" type="text" placeholder="Full Name"/>
+    <input id="cardNumberInput" class="payment-input" type="text" placeholder="Card Number"/>
 
-    <input class="payment-input" type="text" placeholder="Full Name" />
-    <input class="payment-input" type="text" placeholder="Card Number" />
-
-    <button class="payment-button">Pay</button>
-    <button class="payment-button">Cancel</button>
+    <button class="payment-button" id="paymentButton">Pay</button>
 </div>
 
 </body>

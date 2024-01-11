@@ -23,7 +23,7 @@ public class TransactionController(ITransactionService transactionService) : Con
     [HttpPost("CreateDepositTransaction")]
     public IActionResult CreateDepositTransaction(decimal amount)
     {
-        Console.WriteLine("start transaction controller deposit action");
+        Console.WriteLine("start transaction controller CreateDepositTransaction action");
 
         if (User.Identity is not { IsAuthenticated: true })
             return Unauthorized(new { message = "User is not authenticated." });

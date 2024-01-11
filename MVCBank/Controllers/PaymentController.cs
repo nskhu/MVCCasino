@@ -1,25 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using MVCBank.Services;
 
 namespace MVCBank.Controllers;
 
-public class PaymentController : Controller
+public class PaymentController(IPaymentService paymentService) : Controller
 {
-    public IActionResult Payment(int transactionId, decimal amount)
+    public IActionResult ProcessPayment(decimal amount, int transactionId)
     {
-        // Your logic for processing payment, handling transactionId, and amount
-
-        // For simplicity, let's assume you generate a unique payment URL for each transaction
-        var paymentUrl = Url.Action("PaymentView", "Payment", new { transactionId, amount }, Request.Scheme);
-
-        return Ok(new { success = true, message = "Payment successful.", paymentUrl });
+        Console.WriteLine("processing payment with amount: " + amount + "and trId: "+ transactionId);
+        var isSuccess = paymentService.ProcessPayment(amount);
+        Console.WriteLine("for that amount service returned:" + isSuccess);
+        return Ok(isSuccess
+            ? new { success = true, message = "payment successful.", transactionId }
+            : new { success = false, message = "payment failed.", transactionId });
     }
 
-    public IActionResult PaymentView(int transactionId, decimal amount)
+    [HttpGet("PaymentView")]
+    public IActionResult PaymentView(decimal amount, int transactionId)
     {
-        // Your logic for rendering the Payment view
+        Console.WriteLine("in controller payment view action: " + amount + " id " + transactionId);
         ViewData["TransactionId"] = transactionId;
         ViewData["Amount"] = amount;
-
         return View();
     }
 }
