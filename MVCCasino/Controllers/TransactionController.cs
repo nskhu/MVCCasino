@@ -7,6 +7,7 @@ using MVCCasino.Services;
 using MVCCasino.Settings;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using System.Text;
 
 namespace MVCCasino.Controllers;
 
@@ -43,7 +44,7 @@ public class TransactionController(
             TransactionStatusEnum.Pending, transactionService.GetCurrentBalanceByUserId(userId));
         var redirectUrl = GetPaymentUrlFromBank(userId, transactionId, amount);
 
-        logger.LogInformation("transaction registered as pending. returning bank payment url to redirect.");
+        logger.LogInformation("transaction registered as pending. returning bank payment url to redirect: " + redirectUrl);
 
         return Ok(new { success = true, message = "transaction saved successfully.", redirectUrl });
     }
@@ -108,22 +109,29 @@ public class TransactionController(
         return View("TransactionHistory", transactions);
     }
 
-    private async Task<string> GetPaymentUrlFromBank(string userId, int transactionId, decimal amount)
+    private string GetPaymentUrlFromBank(string userId, int transactionId, decimal amount)
     {
         try
         {
             var apiUrl = bankApiSettings.Value.ApiUrl;
             var redirectUrl = string.Empty;
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("UserId", userId),
-                new KeyValuePair<string, string>("TransactionId", transactionId.ToString()),
-                new KeyValuePair<string, string>("Amount", amount.ToString(CultureInfo.InvariantCulture))
-            });
+            // var content = new FormUrlEncodedContent(new[]
+            // {
+            //     new KeyValuePair<string, string>("UserId", userId),
+            //     new KeyValuePair<string, string>("TransactionId", transactionId.ToString()),
+            //     new KeyValuePair<string, string>("Amount", amount.ToString(CultureInfo.InvariantCulture))
+            // });
 
-            var response = await httpClient.PostAsync(apiUrl, content);
+            var content = new StringContent(JsonConvert.SerializeObject(new
+            {
+                UserId = userId,
+                TransactionId = transactionId,
+                Amount = amount
+            }), Encoding.UTF8, "application/json");
+
+            var response = httpClient.PostAsync(apiUrl, content).Result;
             response.EnsureSuccessStatusCode();
-            var responseJson = await response.Content.ReadAsStringAsync();
+            var responseJson = response.Content.ReadAsStringAsync().Result;
             var bankApiResponse = JsonConvert.DeserializeObject<BankApiResponse>(responseJson);
 
             logger.LogInformation("response: " + responseJson);
