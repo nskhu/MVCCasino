@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MVCCasino.Enums;
 using MVCCasino.Models.Responses;
@@ -44,7 +43,8 @@ public class TransactionController(
             TransactionStatusEnum.Pending, transactionService.GetCurrentBalanceByUserId(userId));
         var redirectUrl = GetPaymentUrlFromBank(userId, transactionId, amount);
 
-        logger.LogInformation("transaction registered as pending. returning bank payment url to redirect: " + redirectUrl);
+        logger.LogInformation("transaction registered as pending. returning bank payment url to redirect: " +
+                              redirectUrl);
 
         return Ok(new { success = true, message = "transaction saved successfully.", redirectUrl });
     }
@@ -115,26 +115,16 @@ public class TransactionController(
         {
             var apiUrl = bankApiSettings.Value.ApiUrl;
             var redirectUrl = string.Empty;
-            // var content = new FormUrlEncodedContent(new[]
-            // {
-            //     new KeyValuePair<string, string>("UserId", userId),
-            //     new KeyValuePair<string, string>("TransactionId", transactionId.ToString()),
-            //     new KeyValuePair<string, string>("Amount", amount.ToString(CultureInfo.InvariantCulture))
-            // });
-
             var content = new StringContent(JsonConvert.SerializeObject(new
             {
                 UserId = userId,
                 TransactionId = transactionId,
                 Amount = amount
             }), Encoding.UTF8, "application/json");
-
             var response = httpClient.PostAsync(apiUrl, content).Result;
             response.EnsureSuccessStatusCode();
             var responseJson = response.Content.ReadAsStringAsync().Result;
             var bankApiResponse = JsonConvert.DeserializeObject<BankApiResponse>(responseJson);
-
-            logger.LogInformation("response: " + responseJson);
 
             if (bankApiResponse is { Success: true })
             {
