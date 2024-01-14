@@ -1,7 +1,7 @@
 ﻿function updateCurrentBalance() {
     $.ajax({
         type: "GET",
-        url: "api/Transaction/balance",
+        url: "Transaction/GetCurrentBalance",
         success: function (data) {
             $('#currentBalance').text('Current Balance: ' + data.currentBalance);
             console.log('updateBalance js update balance success');

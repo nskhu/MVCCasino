@@ -18,6 +18,14 @@
             type: "POST",
             data: {amount: amount, transactionId: transactionId},
             success: function (result) {
+
+
+
+
+
+
+
+
                 $.ajax({
                     url: "http://localhost:5163/api/Transaction/deposit",
                     type: "POST",
@@ -28,9 +36,9 @@
                     },
                     success: function (result) {
                         if (result.success) {
-                            console.log('payment js - ' + result.message + " transactionId " + result.transactionId);
+                            console.log('payment js - ' + result.message);
                         } else {
-                            console.log('payment js - ' + result.message + " transactionId " + result.transactionId);
+                            console.log('payment js - ' + result.message);
                         }
                     },
                     error: function (error) {

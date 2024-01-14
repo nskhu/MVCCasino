@@ -1,12 +1,21 @@
-﻿using System.Security.Claims;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using MVCCasino.Enums;
+using MVCCasino.Models.Responses;
 using MVCCasino.Services;
+using MVCCasino.Settings;
+using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace MVCCasino.Controllers;
 
-[Route("api/[controller]")]
-public class TransactionController(ITransactionService transactionService) : Controller
+[Route("[controller]")]
+public class TransactionController(
+    ITransactionService transactionService,
+    ILogger<TransactionController> logger,
+    IOptions<BankApiSettings> bankApiSettings,
+    HttpClient httpClient) : Controller
 {
     [HttpGet("DepositView")]
     public IActionResult DepositView()
@@ -23,21 +32,23 @@ public class TransactionController(ITransactionService transactionService) : Con
     [HttpPost("CreateDepositTransaction")]
     public IActionResult CreateDepositTransaction(decimal amount)
     {
-        Console.WriteLine("start transaction controller CreateDepositTransaction action");
-
         if (User.Identity is not { IsAuthenticated: true })
             return Unauthorized(new { message = "User is not authenticated." });
 
-        if (amount <= 0) return BadRequest(new { message = "Invalid deposit amount." });
+        if (amount <= 0)
+            return BadRequest(new { message = "Invalid deposit amount." });
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var transactionId = transactionService.CreateNewTransaction(userId, amount, TransactionTypeEnum.Deposit, 
+        var transactionId = transactionService.CreateNewTransaction(userId, amount, TransactionTypeEnum.Deposit,
             TransactionStatusEnum.Pending, transactionService.GetCurrentBalanceByUserId(userId));
+        var redirectUrl = GetPaymentUrlFromBank(userId, transactionId, amount);
 
-        return Ok(new { success = true, message = "transaction saved successfully.", transactionId, userId });
+        logger.LogInformation("transaction registered as pending. returning bank payment url to redirect.");
+
+        return Ok(new { success = true, message = "transaction saved successfully.", redirectUrl });
     }
 
-    [HttpPost("deposit")]
+    [HttpPost("Deposit")]
     public IActionResult Deposit(bool isSuccess, int transactionId, string userId)
     {
         Console.WriteLine("start transaction controller deposit action");
@@ -54,7 +65,7 @@ public class TransactionController(ITransactionService transactionService) : Con
         return BadRequest(new { success = false, message = depositResult.ErrorMessage });
     }
 
-    [HttpPost("withdraw")]
+    [HttpPost("Withdraw")]
     public IActionResult Withdraw(decimal amount)
     {
         if (User.Identity is not { IsAuthenticated: true })
@@ -79,7 +90,7 @@ public class TransactionController(ITransactionService transactionService) : Con
         return BadRequest(new { success = false, message = withdrawResult.ErrorMessage });
     }
 
-    [HttpGet("balance")]
+    [HttpGet("GetCurrentBalance")]
     public IActionResult GetCurrentBalance()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -88,7 +99,7 @@ public class TransactionController(ITransactionService transactionService) : Con
         return Json(new { currentBalance });
     }
 
-    [HttpGet("transactions")]
+    [HttpGet("Transactions")]
     public IActionResult GetTransactionHistory()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -97,16 +108,42 @@ public class TransactionController(ITransactionService transactionService) : Con
         return View("TransactionHistory", transactions);
     }
 
-    [HttpPost("ProcessBankPayment")]
-    public IActionResult ProcessBankPayment(bool isSuccess, int transactionId)
+    private async Task<string> GetPaymentUrlFromBank(string userId, int transactionId, decimal amount)
     {
-        return null;
-        /*
-         * am metodis nacvlad gamoviyenot deposit metodi
-         * depozit metods gadaeces: amount, transaction id, userid
-         *
-         * iqamde payment.js -s transaction id stan ertad gadaeces userid.
-         * da transactionid stan ertad ukan daabrunos amount da userid.
-         */
+        try
+        {
+            var apiUrl = bankApiSettings.Value.ApiUrl;
+            var redirectUrl = string.Empty;
+            var content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("UserId", userId),
+                new KeyValuePair<string, string>("TransactionId", transactionId.ToString()),
+                new KeyValuePair<string, string>("Amount", amount.ToString(CultureInfo.InvariantCulture))
+            });
+
+            var response = await httpClient.PostAsync(apiUrl, content);
+            response.EnsureSuccessStatusCode();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var bankApiResponse = JsonConvert.DeserializeObject<BankApiResponse>(responseJson);
+
+            logger.LogInformation("response: " + responseJson);
+
+            if (bankApiResponse is { Success: true })
+            {
+                redirectUrl = bankApiResponse.RedirectUrl;
+            }
+
+            return redirectUrl;
+        }
+        catch (HttpRequestException httpEx)
+        {
+            logger.LogError($"HTTP Error: {httpEx.Message}");
+            return null;
+        }
+        catch (OperationCanceledException canceledEx)
+        {
+            logger.LogError($"Task Canceled: {canceledEx.Message}");
+            return null;
+        }
     }
 }

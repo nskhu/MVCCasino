@@ -4,18 +4,21 @@ namespace MVCBank.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DepositApiController : ControllerBase
+public class DepositApiController(ILogger<DepositApiController> logger) : ControllerBase
 {
     [HttpPost("GetRedirectLink")]
-    public IActionResult GetRedirectLink()
+    public IActionResult GetRedirectLink([FromBody] BankRequestModel request)
     {
-        var bankPaymentViewUrl = GenerateBankPaymentViewUrl();
+        var bankPaymentViewUrl = "http://localhost:7195/Payment/PaymentView";
+        logger.LogInformation("test");
 
-        return Ok(new { success = true, message = "URL generated successfully.", redirectUrl = bankPaymentViewUrl });
+        return Ok(new { Success = true, Message = "URL generated successfully.", RedirectUrl = bankPaymentViewUrl });
     }
 
-    private string GenerateBankPaymentViewUrl()
+    public class BankRequestModel
     {
-        return "http://localhost:5264/PaymentView";
+        public string UserId { get; set; }
+        public int TransactionId { get; set; }
+        public decimal Amount { get; set; }
     }
 }

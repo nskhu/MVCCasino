@@ -18,6 +18,11 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
+builder.Services.AddLogging(logBuilder =>
+{
+    logBuilder.AddConsole();
+    logBuilder.SetMinimumLevel(LogLevel.Trace);
+});
 builder.Services.AddTransient<IPaymentService, PaymentService>();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();

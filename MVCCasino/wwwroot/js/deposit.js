@@ -1,43 +1,17 @@
-﻿$(document).ready(function () {
-    var transactionId;
-    var userId;
+﻿$(function () {
     var amount;
-
-    $("#depositButton").unbind("click").click(function () {
+    $("#depositButton").on("click", function () {
         console.log("deposit js - starting ajax call for deposit");
         amount = $("#amount").val();
 
         $.ajax({
-            url: "/api/Transaction/CreateDepositTransaction",
+            url: "/Transaction/CreateDepositTransaction",
             type: "POST",
-            data: {amount: amount},
+            data: { amount: amount },
             success: function (result) {
                 if (result.success) {
-                    console.log('deposit js - ' + result.message);
-                    transactionId = result.transactionId;
-                    userId = result.userId;
-
-                    // Make a second Ajax call to Bank/DepositApiController
-                    console.log("deposit js - starting 2nd ajax call for bank api");
-                    $.ajax({
-                        url: "http://localhost:5264/api/DepositApi/GetRedirectLink",
-                        type: "POST",
-                        success: function (bankResult) {
-                            if (bankResult.success) {
-                                console.log('Deposit in Bank successful');
-                                console.log('url from bank: ' + bankResult.redirectUrl);
-                                window.location.href = bankResult.redirectUrl 
-                                    + '?amount=' + amount 
-                                    + '&transactionId=' + transactionId
-                                    + '&userId=' + userId;
-                            } else {
-                                console.error('deposit js - Deposit in Bank failed', bankResult.message);
-                            }
-                        },
-                        error: function (bankError) {
-                            console.error('deposit js- Deposit in Bank failed', bankError);
-                        }
-                    });
+                    console.log('deposit js - ' + result.message + " redirect link " + result.redirectUrl);
+                    window.location.href = result.redirectUrl
                 } else {
                     console.error(result.message);
                 }

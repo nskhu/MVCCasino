@@ -7,8 +7,12 @@ using MVCCasino.Data.Repository;
 using MVCCasino.Data.Repository.Dapper;
 using MVCCasino.Models;
 using MVCCasino.Services;
+using MVCCasino.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuration
+builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
@@ -17,9 +21,23 @@ builder.Services.AddTransient<IWalletRepository, WalletRepositoryDapper>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepositoryDapper>();
 builder.Services.AddTransient<IDbConnection>(_ => new SqlConnection(connectionString));
 builder.Services.AddTransient<ITransactionService, TransactionService>();
+builder.Services.Configure<BankApiSettings>(builder.Configuration.GetSection("BankApiSettings"));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddHttpClient();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBankOrigin",
+        cpbuilder => cpbuilder.WithOrigins("http://localhost:5264")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+builder.Services.AddLogging(logBuilder =>
+{
+    logBuilder.AddConsole();
+    logBuilder.SetMinimumLevel(LogLevel.Trace);
+});
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -44,6 +62,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowBankOrigin");
 app.MapControllerRoute(
     "default",
     "{controller=Home}/{action=Index}/{id?}");
