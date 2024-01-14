@@ -1,13 +1,9 @@
-﻿$(document).ready(function () {
-    var transactionId;
-    var userId;
-    var amount;
-
+﻿$(function () {
     var fullName = $("#fullNameInput").val();
     var cardNumber = $("#cardNumberInput").val();
-    amount = $("#amountInput").val();
-    transactionId = $("#transactionIdInput").val();
-    userId = $("#userIdInput").val();
+    var amount = $("#amountInput").val();
+    var transactionId = $("#transactionIdInput").val();
+    var userId = $("#userIdInput").val();
 
     $("#paymentButton").on("click", function () {
         console.log("payment js - starting ajax call for payment");
@@ -16,36 +12,18 @@
         $.ajax({
             url: "/Payment/ProcessPayment",
             type: "POST",
-            data: {amount: amount, transactionId: transactionId},
+            contentType: "application/json", 
+            data: JSON.stringify({
+                amount: amount,
+                transactionId: transactionId,
+                userId: userId
+            }),
             success: function (result) {
+                if (result.success) {
 
+                } else {
 
-
-
-
-
-
-
-                $.ajax({
-                    url: "http://localhost:5163/api/Transaction/deposit",
-                    type: "POST",
-                    data: {
-                        isSuccess: result.success,
-                        transactionId: transactionId,
-                        userId: userId
-                    },
-                    success: function (result) {
-                        if (result.success) {
-                            console.log('payment js - ' + result.message);
-                        } else {
-                            console.log('payment js - ' + result.message);
-                        }
-                    },
-                    error: function (error) {
-                        console.error("payment js - payment failed", error);
-                    }
-                });
-
+                }
             },
             error: function (error) {
                 console.error("payment js - payment failed", error);

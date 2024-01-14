@@ -1,24 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 using MVCBank.Services;
 using System.Globalization;
+using System.Text;
+using Newtonsoft.Json;
+using MVCBank.Models.Responses;
+using MVCBank.Models.Requests;
 
 namespace MVCBank.Controllers;
 
 [Route("[controller]")]
-public class PaymentController(IPaymentService paymentService) : Controller
+public class PaymentController(
+    IPaymentService paymentService,
+    HttpClient httpClient,
+    ILogger<PaymentController> logger) : Controller
 {
-
     [HttpPost("ProcessPayment")]
-    public IActionResult ProcessPayment(decimal amount, int transactionId)
+    public IActionResult ProcessPayment([FromBody] PaymentRequest request)
     {
-        Console.WriteLine("processing payment with amount: " + amount + "and trId: "+ transactionId);
+        var amount = request.Amount;
+        var transactionId = request.TransactionId;
+        var userId = request.UserId;
+
         var isSuccess = paymentService.ProcessPayment(amount);
-        Console.WriteLine("for that amount service returned:" + isSuccess);
-        
-        // HTTP CLIENTIT MIMARTVA UNDA MOXDES KAZINOS API KONTROLERZE
-        // SUCCSES
-        
+        var casinoResponse = SendBankPaymentVerificationResponse(isSuccess, transactionId, userId);
+
         return Ok(isSuccess
             ? new { success = true, message = "payment successful.", transactionId }
             : new { success = false, message = "payment failed.", transactionId });
@@ -27,13 +34,46 @@ public class PaymentController(IPaymentService paymentService) : Controller
     [HttpGet("PaymentView")]
     public IActionResult PaymentView(decimal amount, int transactionId, string userId)
     {
-        var cultureInfo = CultureInfo.InvariantCulture;
-        var formattedAmount = amount.ToString("0.00", cultureInfo);
-
+        var formattedAmount = amount.ToString("0.00", CultureInfo.InvariantCulture);
         ViewData["TransactionId"] = transactionId;
         ViewData["Amount"] = formattedAmount;
         ViewData["UserId"] = userId;
 
         return View();
+    }
+
+    private bool SendBankPaymentVerificationResponse(bool isSuccess, int transactionId, string userId)
+    {
+        try
+        {
+            var apiUrl = "https://localhost:7190/api/BankApi/deposit"; // bankApiSettings.Value.ApiUrl;
+            // var redirectUrl = string.Empty;
+            var content = new StringContent(JsonConvert.SerializeObject(new
+            {
+                IsSuccess = isSuccess,
+                TransactionId = transactionId,
+                UserId = userId
+            }), Encoding.UTF8, "application/json");
+            var response = httpClient.PostAsync(apiUrl, content).Result;
+            response.EnsureSuccessStatusCode();
+            var responseJson = response.Content.ReadAsStringAsync().Result;
+            var casinoDepositResponse = JsonConvert.DeserializeObject<CasinoDepositResponse>(responseJson);
+
+            if (casinoDepositResponse is { Success: true })
+            {
+            }
+
+            return casinoDepositResponse.Success;
+        }
+        catch (HttpRequestException httpEx)
+        {
+            logger.LogError($"HTTP Error: {httpEx.Message}");
+            return false;
+        }
+        catch (OperationCanceledException canceledEx)
+        {
+            logger.LogError($"Task Canceled: {canceledEx.Message}");
+            return false;
+        }
     }
 }

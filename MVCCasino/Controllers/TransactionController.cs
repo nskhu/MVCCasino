@@ -48,24 +48,7 @@ public class TransactionController(
 
         return Ok(new { success = true, message = "transaction saved successfully.", redirectUrl });
     }
-
-    [HttpPost("Deposit")]
-    public IActionResult Deposit(bool isSuccess, int transactionId, string userId)
-    {
-        Console.WriteLine("start transaction controller deposit action");
-
-        var depositResult = transactionService.ProcessDeposit(isSuccess, transactionId, userId);
-
-        if (depositResult.Success)
-        {
-            Console.WriteLine("in transaction controller deposit result is success, return url to js");
-            var redirectUrl = Url.Action("Index", "Home");
-            return Ok(new { success = true, message = "Deposit successful.", redirectUrl });
-        }
-
-        return BadRequest(new { success = false, message = depositResult.ErrorMessage });
-    }
-
+    
     [HttpPost("Withdraw")]
     public IActionResult Withdraw(decimal amount)
     {
