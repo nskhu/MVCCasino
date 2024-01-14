@@ -9,7 +9,7 @@
     transactionId = $("#transactionIdInput").val();
     userId = $("#userIdInput").val();
 
-    $("#paymentButton").unbind("click").click(function () {
+    $("#paymentButton").on("click", function () {
         console.log("payment js - starting ajax call for payment");
         console.log("payment js - amount: " + amount + " trId: " + transactionId + " userID: " + userId);
 

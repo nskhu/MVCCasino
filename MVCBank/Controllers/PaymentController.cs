@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MVCBank.Services;
+using System.Globalization;
 
 namespace MVCBank.Controllers;
 
 [Route("[controller]")]
 public class PaymentController(IPaymentService paymentService) : Controller
 {
+
+    [HttpPost("ProcessPayment")]
     public IActionResult ProcessPayment(decimal amount, int transactionId)
     {
         Console.WriteLine("processing payment with amount: " + amount + "and trId: "+ transactionId);
@@ -24,10 +27,13 @@ public class PaymentController(IPaymentService paymentService) : Controller
     [HttpGet("PaymentView")]
     public IActionResult PaymentView(decimal amount, int transactionId, string userId)
     {
-        Console.WriteLine("in controller payment view action: " + amount + " id " + transactionId + " userId: " + userId);
+        var cultureInfo = CultureInfo.InvariantCulture;
+        var formattedAmount = amount.ToString("0.00", cultureInfo);
+
         ViewData["TransactionId"] = transactionId;
-        ViewData["Amount"] = amount;
+        ViewData["Amount"] = formattedAmount;
         ViewData["UserId"] = userId;
+
         return View();
     }
 }

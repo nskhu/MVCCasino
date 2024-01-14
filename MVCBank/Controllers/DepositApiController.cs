@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using MVCBank.Models.Requests;
 using MVCBank.Settings;
+using System.Globalization;
 
 namespace MVCBank.Controllers;
 
@@ -16,7 +17,8 @@ public class DepositApiController(
     {
         var bankPaymentViewUrl = bankApiSettings.Value.PaymentUrl;
         var redirectUrl =
-            $"{bankPaymentViewUrl}?UserId={request.UserId}&TransactionId={request.TransactionId}&Amount={request.Amount}";
+            $"{bankPaymentViewUrl}?UserId={Uri.EscapeDataString(request.UserId)}&TransactionId={request.TransactionId}&Amount={request.Amount.ToString("0.00", CultureInfo.InvariantCulture)}";
+
 
         logger.LogInformation("redirectUrl: " + redirectUrl);
 
