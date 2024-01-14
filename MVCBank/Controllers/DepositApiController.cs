@@ -1,24 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using MVCBank.Models.Requests;
+using MVCBank.Settings;
 
 namespace MVCBank.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DepositApiController(ILogger<DepositApiController> logger) : ControllerBase
+public class DepositApiController(
+    ILogger<DepositApiController> logger,
+    IOptions<BankApiSettings> bankApiSettings) : ControllerBase
 {
     [HttpPost("GetRedirectLink")]
-    public IActionResult GetRedirectLink([FromBody] BankRequestModel request)
+    public IActionResult GetRedirectLink([FromBody] PaymentRequest request)
     {
-        var bankPaymentViewUrl = "http://localhost:7195/Payment/PaymentView";
-        logger.LogInformation("test");
+        var bankPaymentViewUrl = bankApiSettings.Value.PaymentUrl;
+        var redirectUrl =
+            $"{bankPaymentViewUrl}?UserId={request.UserId}&TransactionId={request.TransactionId}&Amount={request.Amount}";
 
-        return Ok(new { Success = true, Message = "URL generated successfully.", RedirectUrl = bankPaymentViewUrl });
-    }
+        logger.LogInformation("redirectUrl: " + redirectUrl);
 
-    public class BankRequestModel
-    {
-        public string UserId { get; set; }
-        public int TransactionId { get; set; }
-        public decimal Amount { get; set; }
+        return Ok(new { Success = true, Message = "URL generated successfully.", RedirectUrl = redirectUrl });
     }
 }

@@ -11,7 +11,7 @@
             success: function (result) {
                 if (result.success) {
                     console.log('deposit js - ' + result.message + " redirect link " + result.redirectUrl);
-                    //window.location.href = result.redirectUrl
+                    window.location.href = result.redirectUrl
                 } else {
                     console.error(result.message);
                 }
