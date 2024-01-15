@@ -16,4 +16,5 @@ public interface ITransactionService
 
     int CreateNewTransaction(String userId, decimal amount, TransactionTypeEnum transactionType, TransactionStatusEnum transactionStatus, decimal currentBalance);
     DepositResponse ProcessDeposit(bool isSuccess, int transactionId, string userId);
+    WithdrawResponse UpdatePendingWithdraw(bool success, int transactionId, string userId);
 }

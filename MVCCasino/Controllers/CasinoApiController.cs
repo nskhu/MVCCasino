@@ -6,8 +6,8 @@ namespace MVCCasino.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BankApiController(
-        ILogger<BankApiController> logger,
+    public class CasinoApiController(
+        ILogger<CasinoApiController> logger,
         ITransactionService transactionService) : ControllerBase
     {
         [HttpPost("Deposit")]
@@ -20,7 +20,6 @@ namespace MVCCasino.Controllers
 
             if (depositResult.Success)
             {
-                // var redirectUrl = Url.Action("Index", "Home");
                 return Ok(new { success = true, message = "Deposit successful." });
             }
 

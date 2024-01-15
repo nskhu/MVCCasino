@@ -20,8 +20,8 @@ public class TransactionService(
     {
         try
         {
-            walletRepository.Withdraw(userId, amount);
-            return new WithdrawResponse { Success = true };
+            var transactionId = walletRepository.Withdraw(userId, amount);
+            return new WithdrawResponse { Success = true, TransactionId = transactionId };
         }
         catch (DbException dbEx)
         {
@@ -41,7 +41,8 @@ public class TransactionService(
         return transactionRepository.GetTransactionsByUserId(userId);
     }
 
-    public int CreateNewTransaction(string userId, decimal amount, TransactionTypeEnum transactionType, TransactionStatusEnum transactionStatus, decimal currentBalance)
+    public int CreateNewTransaction(string userId, decimal amount, TransactionTypeEnum transactionType,
+        TransactionStatusEnum transactionStatus, decimal currentBalance)
     {
         var transaction = new Transaction
         {
@@ -60,7 +61,8 @@ public class TransactionService(
     {
         try
         {
-            walletRepository.Deposit(isSuccess ? TransactionStatusEnum.Approved : TransactionStatusEnum.Rejected, transactionId, userId);
+            walletRepository.Deposit(isSuccess ? TransactionStatusEnum.Approved : TransactionStatusEnum.Rejected,
+                transactionId, userId);
             return new DepositResponse { Success = true };
         }
         catch (DbException dbEx)
@@ -68,6 +70,22 @@ public class TransactionService(
             Console.Error.WriteLine($"Deposit failed due to a database error: {dbEx.Message}");
             return new DepositResponse
                 { Success = false, ErrorMessage = "Deposit failed due to a database error. " + dbEx.Message };
+        }
+    }
+
+    public WithdrawResponse UpdatePendingWithdraw(bool isSuccess, int transactionId, string userId)
+    {
+        try
+        {
+            walletRepository.UpdatePendingWithdraw(isSuccess ? TransactionStatusEnum.Approved : TransactionStatusEnum.Rejected,
+                transactionId, userId);
+            return new WithdrawResponse { Success = true };
+        }
+        catch (DbException dbEx)
+        {
+            Console.Error.WriteLine($"Withdraw failed due to a database error: {dbEx.Message}");
+            return new WithdrawResponse
+                { Success = false, ErrorMessage = "Withdraw failed due to a database error. " + dbEx.Message };
         }
     }
 }

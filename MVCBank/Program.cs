@@ -29,7 +29,7 @@ builder.Services.AddLogging(logBuilder =>
     logBuilder.SetMinimumLevel(LogLevel.Trace);
 });
 builder.Services.AddHttpClient();
-builder.Services.AddTransient<IPaymentService, PaymentService>();
+builder.Services.AddTransient<IBankService, BankService>();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();

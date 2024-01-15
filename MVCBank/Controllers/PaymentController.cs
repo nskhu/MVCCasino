@@ -12,18 +12,18 @@ namespace MVCBank.Controllers;
 
 [Route("[controller]")]
 public class PaymentController(
-    IPaymentService paymentService,
+    IBankService bankService,
     HttpClient httpClient,
     ILogger<PaymentController> logger) : Controller
 {
-    [HttpPost("ProcessPayment")]
+    [HttpPost("ProcessApprove")]
     public IActionResult ProcessPayment([FromBody] PaymentRequest request)
     {
         var amount = request.Amount;
         var transactionId = request.TransactionId;
         var userId = request.UserId;
 
-        var isSuccess = paymentService.ProcessPayment(amount);
+        var isSuccess = bankService.ProcessApprove(amount);
         var casinoResponse = SendBankPaymentVerificationResponse(isSuccess, transactionId, userId);
 
         return Ok(isSuccess
@@ -46,8 +46,7 @@ public class PaymentController(
     {
         try
         {
-            var apiUrl = "https://localhost:7190/api/BankApi/deposit"; // bankApiSettings.Value.ApiUrl;
-            // var redirectUrl = string.Empty;
+            var apiUrl = "https://localhost:7190/api/CasinoApi/deposit";
             var content = new StringContent(JsonConvert.SerializeObject(new
             {
                 IsSuccess = isSuccess,

@@ -1,11 +1,10 @@
-﻿$(document).ready(function () {
-    $("#withdrawButton").unbind("click").click(function () {
-        console.log("starting ajax call for deposit");
-        event.preventDefault();
+﻿$(function () {
+    $("#withdrawButton").on("click", function () {
+        console.log("starting ajax call for withdraw");
         var amount = $("#amount").val();
 
         $.ajax({
-            url: "/api/Transaction/withdraw",
+            url: "/Transaction/Withdraw",
             type: "POST",
             data: {amount: amount},
             success: function (result) {

@@ -7,6 +7,7 @@ using MVCCasino.Settings;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text;
+using System.Transactions;
 
 namespace MVCCasino.Controllers;
 
@@ -48,9 +49,9 @@ public class TransactionController(
 
         return Ok(new { success = true, message = "transaction saved successfully.", redirectUrl });
     }
-    
+
     [HttpPost("Withdraw")]
-    public IActionResult Withdraw(decimal amount)
+    public async Task<IActionResult> Withdraw(decimal amount)
     {
         if (User.Identity is not { IsAuthenticated: true })
             return Unauthorized(new { message = "User is not authenticated." });
@@ -64,14 +65,14 @@ public class TransactionController(
             return BadRequest(new { message = "Invalid withdraw amount." });
 
         var withdrawResult = transactionService.ProcessWithdraw(userId, amount);
+        var transactionId = withdrawResult.TransactionId;
 
-        if (withdrawResult.Success)
-        {
-            var redirectUrl = Url.Action("Index", "Home");
-            return Ok(new { success = true, message = "Withdraw successful.", redirectUrl });
-        }
+        if (!withdrawResult.Success) return BadRequest(new { success = false, message = withdrawResult.ErrorMessage });
 
-        return BadRequest(new { success = false, message = withdrawResult.ErrorMessage });
+        var redirectUrl = Url.Action("Index", "Home");
+        await VerifyWithdrawInBank(userId, transactionId, amount);
+
+        return Ok(new { success = true, message = "Withdraw successful. amount: " + amount, redirectUrl });
     }
 
     [HttpGet("GetCurrentBalance")]
@@ -125,6 +126,34 @@ public class TransactionController(
         {
             logger.LogError($"Task Canceled: {canceledEx.Message}");
             return null;
+        }
+    }
+
+    private async Task VerifyWithdrawInBank(string userId, int transactionId, decimal amount)
+    {
+        try
+        {
+            var apiUrl = bankApiSettings.Value.WithdrawUrl;
+            var redirectUrl = string.Empty;
+            var content = new StringContent(JsonConvert.SerializeObject(new
+            {
+                UserId = userId,
+                TransactionId = transactionId,
+                Amount = amount
+            }), Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(apiUrl, content);
+            response.EnsureSuccessStatusCode();
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var withdrawResponse = JsonConvert.DeserializeObject<WithdrawResponse>(responseJson);
+            transactionService.UpdatePendingWithdraw(withdrawResponse.Success, transactionId, userId);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            logger.LogError($"HTTP Error: {httpEx.Message}");
+        }
+        catch (OperationCanceledException canceledEx)
+        {
+            logger.LogError($"Task Canceled: {canceledEx.Message}");
         }
     }
 }
