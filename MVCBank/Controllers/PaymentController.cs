@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
 using MVCBank.Services;
 using System.Globalization;
 using System.Text;
 using Newtonsoft.Json;
 using MVCBank.Models.Responses;
 using MVCBank.Models.Requests;
+using Microsoft.Extensions.Options;
+using MVCBank.Settings;
 
 namespace MVCBank.Controllers;
 
@@ -14,6 +14,7 @@ namespace MVCBank.Controllers;
 public class PaymentController(
     IBankService bankService,
     HttpClient httpClient,
+    IOptions<BankApiSettings> bankApiSettings,
     ILogger<PaymentController> logger) : Controller
 {
     [HttpPost("ProcessApprove")]
@@ -46,7 +47,7 @@ public class PaymentController(
     {
         try
         {
-            var apiUrl = "https://localhost:7190/api/CasinoApi/deposit";
+            var apiUrl = bankApiSettings.Value.CasinoDepositUrl;
             var content = new StringContent(JsonConvert.SerializeObject(new
             {
                 IsSuccess = isSuccess,
