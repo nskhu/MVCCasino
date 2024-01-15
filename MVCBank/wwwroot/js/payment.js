@@ -19,11 +19,7 @@
                 userId: userId
             }),
             success: function (result) {
-                if (result.success) {
-
-                } else {
-
-                }
+                window.location.href = result.redirectUrl;
             },
             error: function (error) {
                 console.error("payment js - payment failed", error);

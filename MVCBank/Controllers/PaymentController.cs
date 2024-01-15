@@ -17,19 +17,19 @@ public class PaymentController(
     IOptions<BankApiSettings> bankApiSettings,
     ILogger<PaymentController> logger) : Controller
 {
-    [HttpPost("ProcessApprove")]
+    [HttpPost("ProcessPayment")]
     public IActionResult ProcessPayment([FromBody] PaymentRequest request)
     {
         var amount = request.Amount;
         var transactionId = request.TransactionId;
         var userId = request.UserId;
-
+        var redirectUrl = bankApiSettings.Value.CasinoHomeUrl;
         var isSuccess = bankService.ProcessApprove(amount);
         var casinoResponse = SendBankPaymentVerificationResponse(isSuccess, transactionId, userId);
 
         return Ok(isSuccess
-            ? new { success = true, message = "payment successful.", transactionId }
-            : new { success = false, message = "payment failed.", transactionId });
+            ? new { success = true, message = "payment successful.", transactionId, redirectUrl }
+            : new { success = false, message = "payment failed.", transactionId, redirectUrl });
     }
 
     [HttpGet("PaymentView")]
