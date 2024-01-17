@@ -1,0 +1,6 @@
+@BsMerchantAPI_HostAddress = http://localhost:5215
+
+GET {{BsMerchantAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

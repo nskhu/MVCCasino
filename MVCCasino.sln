@@ -1,8 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVCCasino", "MVCCasino\MVCCasino.csproj", "{500DD58C-4637-467B-96E7-19EDD19E547E}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34408.163
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVCCasino", "MVCCasino\MVCCasino.csproj", "{500DD58C-4637-467B-96E7-19EDD19E547E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVCBank", "MVCBank\MVCBank.csproj", "{B6F23126-038B-463D-BDFD-A7D095DA15FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVCBank", "MVCBank\MVCBank.csproj", "{B6F23126-038B-463D-BDFD-A7D095DA15FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsMerchantAPI", "BsMerchantAPI\BsMerchantAPI.csproj", "{3F936F8A-8E13-4973-9466-4084575BE4FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +23,15 @@ Global
 		{B6F23126-038B-463D-BDFD-A7D095DA15FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6F23126-038B-463D-BDFD-A7D095DA15FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6F23126-038B-463D-BDFD-A7D095DA15FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F936F8A-8E13-4973-9466-4084575BE4FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F936F8A-8E13-4973-9466-4084575BE4FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F936F8A-8E13-4973-9466-4084575BE4FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F936F8A-8E13-4973-9466-4084575BE4FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {635EFD8F-24D8-4951-90BF-C6DEEBB48938}
 	EndGlobalSection
 EndGlobal
