@@ -40,6 +40,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Transaction" asp-action="GetTransactionHistory">Transactions</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="#" id="tokenLink">Token</a>
+                            </li>
                         </ul>
                         <span class="navbar-text" id="currentBalance">
                             Current Balance: Loading...
@@ -68,6 +71,7 @@
 <script src="~/js/deposit.js"></script>
 <script src="~/js/withdraw.js"></script>
 <script src="~/js/currentBalance.js"></script>
+<script src="~/js/getToken.js"></script>
 
 @await RenderSectionAsync("Scripts", false)
 </body>

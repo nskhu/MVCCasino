@@ -17,10 +17,12 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+builder.Services.AddTransient<IDbConnection>(_ => new SqlConnection(connectionString));
 builder.Services.AddTransient<IWalletRepository, WalletRepositoryDapper>();
 builder.Services.AddTransient<ITransactionRepository, TransactionRepositoryDapper>();
-builder.Services.AddTransient<IDbConnection>(_ => new SqlConnection(connectionString));
+builder.Services.AddTransient<IAuthRepository, AuthRepositoryDapper>();
 builder.Services.AddTransient<ITransactionService, TransactionService>();
+builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.Configure<BankApiSettings>(builder.Configuration.GetSection("BankApiSettings"));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));

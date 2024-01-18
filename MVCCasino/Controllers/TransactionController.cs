@@ -14,6 +14,7 @@ namespace MVCCasino.Controllers;
 [Route("[controller]")]
 public class TransactionController(
     ITransactionService transactionService,
+    IAuthService authService,
     ILogger<TransactionController> logger,
     IOptions<BankApiSettings> bankApiSettings,
     HttpClient httpClient) : Controller
@@ -73,6 +74,18 @@ public class TransactionController(
         await VerifyWithdrawInBank(userId, transactionId, amount);
 
         return Ok(new { success = true, message = "Withdraw successful. amount: " + amount, redirectUrl });
+    }
+
+    [HttpPost("Auth")]
+    public IActionResult Auth()
+    {
+        if (User.Identity is not { IsAuthenticated: true })
+            return Unauthorized(new { message = "User is not authenticated." });
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var publicToken = authService.GeneratePublicToken(userId);
+
+        return Json(new { publicToken });
     }
 
     [HttpGet("GetCurrentBalance")]
