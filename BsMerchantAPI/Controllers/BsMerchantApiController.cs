@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using BsMerchantAPI.Models.Requests;
+using BsMerchantAPI.Models.Responses;
+using BsMerchantAPI.Models.Responses.ResponseDatas;
 using BsMerchantAPI.Services;
 
 namespace BsMerchantAPI.Controllers
@@ -9,9 +12,9 @@ namespace BsMerchantAPI.Controllers
     [ApiController]
     public class BsMerchantApiController(
         ILogger<BsMerchantApiController> logger,
+        IAuthService authService,
         IMerchantService merchantService) : ControllerBase
     {
-
         [HttpPost("GetCurrentBalance")]
         public IActionResult GetCurrentBalance()
         {
@@ -19,6 +22,36 @@ namespace BsMerchantAPI.Controllers
             var currentBalance = merchantService.GetUserBalance(userId);
 
             return Ok(new { balance = currentBalance });
+        }
+
+        [HttpPost("Auth")]
+        public IActionResult Auth([FromBody] PublicTokenRequest request)
+        {
+            try
+            {
+                var privateToken = authService.GeneratePrivateToken(request.PublicToken);
+
+                var response = new MerchantApiResponse<AuthResponseData>
+                {
+                    StatusCode = 200,
+                    Data = new AuthResponseData()
+                    {
+                        PrivateToken = privateToken
+                    }
+                };
+
+                return Ok(response);
+            }
+            catch
+            {
+                var errorResponse = new MerchantApiResponse<object?>
+                {
+                    StatusCode = 500,
+                    Data = null
+                };
+
+                return StatusCode(500, errorResponse);
+            }
         }
     }
 }

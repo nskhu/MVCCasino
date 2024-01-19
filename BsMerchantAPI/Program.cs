@@ -16,15 +16,21 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin",
+        cpbuilder => cpbuilder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 // Add Dapper
 builder.Services.AddScoped<IDbConnection>(_ => new SqlConnection(connectionString));
 
-// builder.Services.AddScoped<SqlConnection>(_ => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 // add services and repos
-builder.Services.AddTransient<IMerchantService, MerchantService>();
 builder.Services.AddTransient<IWalletRepository, WalletRepositoryDapper>();
+builder.Services.AddTransient<IAuthRepository, AuthRepositoryDapper>();
+builder.Services.AddTransient<IMerchantService, MerchantService>();
+builder.Services.AddTransient<IAuthService, AuthService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,5 +45,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors("AllowAnyOrigin");
 
 app.Run();

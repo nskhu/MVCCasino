@@ -17,6 +17,7 @@ public class TransactionController(
     IAuthService authService,
     ILogger<TransactionController> logger,
     IOptions<BankApiSettings> bankApiSettings,
+    IOptions<MerchantApiSettings> merchantApiSettings,
     HttpClient httpClient) : Controller
 {
     [HttpGet("DepositView")]
@@ -84,8 +85,13 @@ public class TransactionController(
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var publicToken = authService.GeneratePublicToken(userId);
+        var privateToken = GeneratePrivateToken(publicToken);
 
-        return Json(new { publicToken });
+        return Json(new
+        {
+            publicToken,
+            privateToken
+        });
     }
 
     [HttpGet("GetCurrentBalance")]
@@ -105,6 +111,41 @@ public class TransactionController(
 
         return View("TransactionHistory", transactions);
     }
+
+    private string GeneratePrivateToken(string publicToken)
+    {
+        var merchantApiUrl = merchantApiSettings.Value.AuthUrl;
+        var requestContent =
+            new StringContent($"{{ \"publicToken\": \"{publicToken}\" }}", Encoding.UTF8, "application/json");
+        var response = httpClient.PostAsync(merchantApiUrl, requestContent).Result;
+
+        if (response.IsSuccessStatusCode)
+        {
+            var merchantApiResponseJson = response.Content.ReadAsStringAsync().Result;
+            var merchantApiResponse = JsonConvert.DeserializeObject<MerchantApiAuthResponse>(merchantApiResponseJson);
+
+            if (merchantApiResponse is { StatusCode: 200, Data: not null })
+            {
+                return merchantApiResponse.Data.PrivateToken;
+            }
+            else
+            {
+                throw new InvalidOperationException("Invalid response from MerchantAPI Auth endpoint.");
+            }
+        }
+        else
+        {
+            throw new HttpRequestException(
+                $"Error calling MerchantAPI Auth: {response.StatusCode} - {response.ReasonPhrase}");
+        }
+    }
+
+    // Define a class to represent the response structure from the MerchantAPI Auth endpoint
+    public class PrivateTokenResponse
+    {
+        public string PrivateToken { get; set; }
+    }
+
 
     private string GetPaymentUrlFromBank(string userId, int transactionId, decimal amount)
     {

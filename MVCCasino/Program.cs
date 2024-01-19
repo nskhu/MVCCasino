@@ -24,6 +24,7 @@ builder.Services.AddTransient<IAuthRepository, AuthRepositoryDapper>();
 builder.Services.AddTransient<ITransactionService, TransactionService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.Configure<BankApiSettings>(builder.Configuration.GetSection("BankApiSettings"));
+builder.Services.Configure<MerchantApiSettings>(builder.Configuration.GetSection("MerchantApiSettings"));
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -32,6 +33,13 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBankOrigin",
         cpbuilder => cpbuilder.WithOrigins("http://localhost:5264")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAnyOrigin",
+        cpbuilder => cpbuilder.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod());
 });
@@ -65,6 +73,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowBankOrigin");
+app.UseCors("AllowAnyOrigin");
 app.MapControllerRoute(
     "default",
     "{controller=Home}/{action=Index}/{id?}");
