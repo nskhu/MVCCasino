@@ -15,15 +15,6 @@ namespace BsMerchantAPI.Controllers
         IAuthService authService,
         IMerchantService merchantService) : ControllerBase
     {
-        [HttpPost("GetCurrentBalance")]
-        public IActionResult GetCurrentBalance()
-        {
-            const string userId = "115da0de-4261-4223-84cc-546dea3f2024";
-            var currentBalance = merchantService.GetUserBalance(userId);
-
-            return Ok(new { balance = currentBalance });
-        }
-
 
         /// <summary>
         /// Authenticate the user and generate a private token.
