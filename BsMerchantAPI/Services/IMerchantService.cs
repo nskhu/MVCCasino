@@ -3,5 +3,6 @@
     public interface IMerchantService
     {
         decimal GetUserBalance(string userId);
+        decimal GetBalance(string privateToken);
     }
 }

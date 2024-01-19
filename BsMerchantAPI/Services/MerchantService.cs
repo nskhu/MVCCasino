@@ -9,5 +9,10 @@ namespace BsMerchantAPI.Services
         {
             return walletRepository.GetUserBalance(userId);
         }
+
+        public decimal GetBalance(string privateToken)
+        {
+            return walletRepository.GetBalance(privateToken);
+        }
     }
 }
