@@ -102,6 +102,11 @@ namespace BsMerchantAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Get player information based on the provided private token.
+        /// </summary>
+        /// <param name="request">Request object containing the private token.</param>
+        /// <returns>Returns player information if successful, or a 500 status code in case of an error.</returns>
         [HttpPost("GetPlayerInfo")]
         public IActionResult GetPlayerInfo([FromBody] PrivateTokenRequest request)
         {
