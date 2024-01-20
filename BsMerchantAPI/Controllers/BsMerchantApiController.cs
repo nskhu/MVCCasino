@@ -15,7 +15,6 @@ namespace BsMerchantAPI.Controllers
         IAuthService authService,
         IMerchantService merchantService) : ControllerBase
     {
-
         /// <summary>
         /// Authenticate the user and generate a private token.
         /// </summary>
@@ -87,6 +86,33 @@ namespace BsMerchantAPI.Controllers
                     {
                         Balance = balance
                     }
+                };
+
+                return Ok(response);
+            }
+            catch
+            {
+                var errorResponse = new MerchantApiResponse<object?>
+                {
+                    StatusCode = 500,
+                    Data = null
+                };
+
+                return StatusCode(500, errorResponse);
+            }
+        }
+
+        [HttpPost("GetPlayerInfo")]
+        public IActionResult GetPlayerInfo([FromBody] PrivateTokenRequest request)
+        {
+            try
+            {
+                var playerInfo = merchantService.GetPlayerInfo(request.PrivateToken);
+
+                var response = new MerchantApiResponse<PlayerInfoData>
+                {
+                    StatusCode = 200,
+                    Data = playerInfo
                 };
 
                 return Ok(response);
