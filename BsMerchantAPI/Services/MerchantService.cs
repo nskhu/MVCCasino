@@ -6,7 +6,6 @@ namespace BsMerchantAPI.Services
     public class MerchantService(
         IWalletRepository walletRepository) : IMerchantService
     {
-
         public decimal GetBalance(string privateToken)
         {
             return walletRepository.GetBalance(privateToken);
@@ -20,6 +19,11 @@ namespace BsMerchantAPI.Services
         public BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken)
         {
             return walletRepository.AddBetTransaction(remoteTransactionId, amount, privateToken);
+        }
+
+        public BetResponseData? AddWinTransaction(string remoteTransactionId, decimal amount, string privateToken)
+        {
+            return walletRepository.AddWinTransaction(remoteTransactionId, amount, privateToken);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using BsMerchantAPI.Models.Requests;
 using BsMerchantAPI.Models.Responses;
 using BsMerchantAPI.Models.Responses.ResponseDatas;
@@ -134,6 +133,11 @@ namespace BsMerchantAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Places a bet transaction for the user.
+        /// </summary>
+        /// <param name="request">The bet request data, including the remote transaction ID, amount, and private token.</param>
+        /// <returns>Returns a response containing transaction details if successful; otherwise, returns an error response.</returns>
         [HttpPost("Bet")]
         public IActionResult Bet([FromBody] BetRequest request)
         {
@@ -147,6 +151,40 @@ namespace BsMerchantAPI.Controllers
                 {
                     StatusCode = 200,
                     Data = betResponseData
+                };
+
+                return Ok(response);
+            }
+            catch
+            {
+                var errorResponse = new MerchantApiResponse<object?>
+                {
+                    StatusCode = 500,
+                    Data = null
+                };
+
+                return StatusCode(500, errorResponse);
+            }
+        }
+
+        /// <summary>
+        /// Processes a win transaction for the user.
+        /// </summary>
+        /// <param name="request">The win request data, including the remote transaction ID, amount, and private token.</param>
+        /// <returns>Returns a response containing transaction details if successful; otherwise, returns an error response.</returns>
+        [HttpPost("Win")]
+        public IActionResult Win([FromBody] BetRequest request)
+        {
+            try
+            {
+                var winResponseData = merchantService.AddWinTransaction(request.RemoteTransactionId, request.Amount,
+                    request.PrivateToken
+                );
+
+                var response = new MerchantApiResponse<BetResponseData>
+                {
+                    StatusCode = 200,
+                    Data = winResponseData
                 };
 
                 return Ok(response);

@@ -7,5 +7,6 @@ namespace BsMerchantAPI.Services
         decimal GetBalance(string privateToken);
         PlayerInfoData? GetPlayerInfo(string requestPrivateToken);
         BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken);
+        BetResponseData? AddWinTransaction(string remoteTransactionId, decimal amount, string privateToken);
     }
 }
