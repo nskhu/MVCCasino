@@ -16,5 +16,10 @@ namespace BsMerchantAPI.Services
         {
             return walletRepository.GetPlayerInfo(privateToken);
         }
+
+        public BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken)
+        {
+            return walletRepository.AddBetTransaction(remoteTransactionId, amount, privateToken);
+        }
     }
 }

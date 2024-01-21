@@ -6,4 +6,5 @@ public interface IWalletRepository
 {
     decimal GetBalance(string privateToken);
     PlayerInfoData GetPlayerInfo(string privateToken);
+    BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken);
 }

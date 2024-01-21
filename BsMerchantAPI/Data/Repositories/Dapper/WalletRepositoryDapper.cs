@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using BsMerchantAPI.Models.Responses.ResponseDatas;
 using Dapper;
+using Microsoft.Data.SqlClient;
 
 
 namespace BsMerchantAPI.Data.Repositories.Dapper;
@@ -22,10 +23,45 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
     {
         const string procedureName = "GetPlayerInfoProcedure";
         var parameters = new { PrivateToken = privateToken };
-        var results = dbConnection
+        var result = dbConnection
             .Query<PlayerInfoData>(procedureName, parameters, commandType: CommandType.StoredProcedure)
             .SingleOrDefault();
 
-        return results;
+        return result;
+    }
+
+    public BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken)
+    {
+        var parameters = new
+        {
+            RemoteTransactionId = remoteTransactionId,
+            Amount = amount,
+            PrivateToken = privateToken
+        };
+        int transactionId;
+        decimal currentBalance;
+
+        try
+        {
+            var result = dbConnection.QuerySingle<dynamic>(
+                "AddBetTransactionProcedure",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+            transactionId = (int)result.TransactionId;
+            currentBalance = (decimal)result.NewCurrentBalance;
+        }
+        catch (SqlException e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.Number);
+            throw;
+        }
+
+        return new BetResponseData
+        {
+            TransactionId = transactionId,
+            CurrentBalance = currentBalance
+        };
     }
 }

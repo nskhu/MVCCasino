@@ -133,5 +133,34 @@ namespace BsMerchantAPI.Controllers
                 return StatusCode(500, errorResponse);
             }
         }
+
+        [HttpPost("Bet")]
+        public IActionResult Bet([FromBody] BetRequest request)
+        {
+            try
+            {
+                var betResponseData = merchantService.AddBetTransaction(request.RemoteTransactionId, request.Amount,
+                    request.PrivateToken
+                );
+
+                var response = new MerchantApiResponse<BetResponseData>
+                {
+                    StatusCode = 200,
+                    Data = betResponseData
+                };
+
+                return Ok(response);
+            }
+            catch
+            {
+                var errorResponse = new MerchantApiResponse<object?>
+                {
+                    StatusCode = 500,
+                    Data = null
+                };
+
+                return StatusCode(500, errorResponse);
+            }
+        }
     }
 }
