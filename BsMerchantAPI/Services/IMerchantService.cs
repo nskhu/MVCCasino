@@ -8,5 +8,8 @@ namespace BsMerchantAPI.Services
         PlayerInfoData? GetPlayerInfo(string requestPrivateToken);
         BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken);
         BetResponseData? AddWinTransaction(string remoteTransactionId, decimal amount, string privateToken);
+
+        TransactionResponseData? AddCancelBetTransaction(string remoteTransactionId, decimal amount,
+            string privateToken, string betTransactionId);
     }
 }

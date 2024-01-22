@@ -25,5 +25,12 @@ namespace BsMerchantAPI.Services
         {
             return walletRepository.AddWinTransaction(remoteTransactionId, amount, privateToken);
         }
+
+        public TransactionResponseData? AddCancelBetTransaction(string remoteTransactionId, decimal amount, string privateToken,
+            string betTransactionId)
+        {
+            return walletRepository.AddCancelBetTransaction(remoteTransactionId, amount, privateToken, betTransactionId);
+
+        }
     }
 }

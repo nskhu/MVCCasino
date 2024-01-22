@@ -200,5 +200,44 @@ namespace BsMerchantAPI.Controllers
                 return StatusCode(500, errorResponse);
             }
         }
+
+        /// <summary>
+        /// Cancels a bet transaction.
+        /// </summary>
+        /// <param name="request">Cancellation request details.</param>
+        /// <returns>Response with transaction information.</returns>
+        /// <response code="200">Successful cancellation of the bet transaction.</response>
+        /// <response code="500">Error during the cancellation process.</response>
+        [HttpPost("CancelBet")]
+        public IActionResult CancelBet([FromBody] CancelBetRequest request)
+        {
+            try
+            {
+                var cancelBetResponseData = merchantService.AddCancelBetTransaction(
+                    request.RemoteTransactionId,
+                    request.Amount,
+                    request.PrivateToken,
+                    request.BetTransactionId
+                );
+
+                var response = new MerchantApiResponse<TransactionResponseData>
+                {
+                    StatusCode = 200,
+                    Data = cancelBetResponseData
+                };
+
+                return Ok(response);
+            }
+            catch
+            {
+                var errorResponse = new MerchantApiResponse<object?>
+                {
+                    StatusCode = 500,
+                    Data = null
+                };
+
+                return StatusCode(500, errorResponse);
+            }
+        }
     }
 }
