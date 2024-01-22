@@ -4,6 +4,7 @@ using BsMerchantAPI.Models.Requests;
 using BsMerchantAPI.Models.Responses;
 using BsMerchantAPI.Models.Responses.ResponseDatas;
 using BsMerchantAPI.Services;
+using Microsoft.Data.SqlClient;
 
 namespace BsMerchantAPI.Controllers
 {
@@ -47,11 +48,11 @@ namespace BsMerchantAPI.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (SqlException sqlException)
             {
                 var errorResponse = new MerchantApiResponse<object?>
                 {
-                    StatusCode = 500,
+                    StatusCode = MapSqlExceptionToStatusCode(sqlException.Number),
                     Data = null
                 };
 
@@ -282,6 +283,31 @@ namespace BsMerchantAPI.Controllers
                 };
 
                 return StatusCode(500, errorResponse);
+            }
+        }
+
+        private int MapSqlExceptionToStatusCode(int sqlExceptionNumber)
+        {
+            switch (sqlExceptionNumber)
+            {
+                case 50000: // Invalid Token, Public token does not exist
+                    return 404;
+                case 50001: // Inactive Token, Public token is already expired
+                    return 401;
+                case 50002: // Already Processed Transaction (should be used in win and cancelbet methods)
+                    return 201;
+                case 50003: // Insufficient Balance
+                    return 402;
+                case 50004: // Duplicated TransactionId (should be used in bet, deposit and withdraw methods)
+                    return 408;
+                case 50005: // Transaction not found in merchant's system
+                    return 200;
+                case 50006: // Invalid Amount
+                    return 407;
+                case 50007: // Invalid Request
+                    return 411;
+                default:
+                    return 500; // Default to Internal Server Error
             }
         }
     }
