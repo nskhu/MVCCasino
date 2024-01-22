@@ -137,4 +137,43 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
             CurrentBalance = currentBalance
         };
     }
+
+    public TransactionResponseData? AddChangeWinTransaction(string remoteTransactionId, decimal amount,
+        decimal previousAmount,
+        string privateToken, string previousTransactionId)
+    {
+        var parameters = new
+        {
+            RemoteTransactionId = remoteTransactionId,
+            Amount = amount,
+            PreviousAmount = previousAmount,
+            PrivateToken = privateToken,
+            BetTransactionId = previousTransactionId
+        };
+        string transactionId;
+        decimal currentBalance;
+
+        try
+        {
+            var result = dbConnection.QuerySingle<dynamic>(
+                "AddChangeWinTransactionProcedure",
+                parameters,
+                commandType: CommandType.StoredProcedure
+            );
+            transactionId = (string)result.RemoteTransactionId;
+            currentBalance = (decimal)result.NewCurrentBalance;
+        }
+        catch (SqlException e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.Number);
+            throw;
+        }
+
+        return new TransactionResponseData
+        {
+            TransactionId = transactionId,
+            CurrentBalance = currentBalance
+        };
+    }
 }

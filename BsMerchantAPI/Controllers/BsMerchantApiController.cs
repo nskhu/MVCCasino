@@ -239,5 +239,50 @@ namespace BsMerchantAPI.Controllers
                 return StatusCode(500, errorResponse);
             }
         }
+
+        /// <summary>
+        /// API endpoint for changing a previous win transaction.
+        /// </summary>
+        /// <remarks>
+        /// Updates a previous win transaction by changing the win amount.
+        /// </remarks>
+        /// <param name="request">The request object containing necessary parameters.</param>
+        /// <returns>
+        /// <see cref="IActionResult"/> representing the result of the operation.
+        /// Returns a JSON response with the new transaction ID and current balance on success (status code 200).
+        /// Returns a 500 Internal Server Error response on failure.
+        /// </returns>
+        [HttpPost("ChangeWin")]
+        public IActionResult ChangeWin([FromBody] ChangeWinRequest request)
+        {
+            try
+            {
+                var changeWinResponseData = merchantService.AddChangeWinTransaction(
+                    request.RemoteTransactionId,
+                    request.Amount,
+                    request.PreviousAmount,
+                    request.PrivateToken,
+                    request.previousTransactionId
+                );
+
+                var response = new MerchantApiResponse<TransactionResponseData>
+                {
+                    StatusCode = 200,
+                    Data = changeWinResponseData
+                };
+
+                return Ok(response);
+            }
+            catch
+            {
+                var errorResponse = new MerchantApiResponse<object?>
+                {
+                    StatusCode = 500,
+                    Data = null
+                };
+
+                return StatusCode(500, errorResponse);
+            }
+        }
     }
 }
