@@ -90,11 +90,11 @@ namespace BsMerchantAPI.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (SqlException sqlException)
             {
                 var errorResponse = new MerchantApiResponse<object?>
                 {
-                    StatusCode = 500,
+                    StatusCode = MapSqlExceptionToStatusCode(sqlException.Number),
                     Data = null
                 };
 
@@ -122,11 +122,11 @@ namespace BsMerchantAPI.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (SqlException sqlException)
             {
                 var errorResponse = new MerchantApiResponse<object?>
                 {
-                    StatusCode = 500,
+                    StatusCode = MapSqlExceptionToStatusCode(sqlException.Number),
                     Data = null
                 };
 
@@ -156,11 +156,11 @@ namespace BsMerchantAPI.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (SqlException sqlException)
             {
                 var errorResponse = new MerchantApiResponse<object?>
                 {
-                    StatusCode = 500,
+                    StatusCode = MapSqlExceptionToStatusCode(sqlException.Number),
                     Data = null
                 };
 
@@ -190,11 +190,11 @@ namespace BsMerchantAPI.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (SqlException sqlException)
             {
                 var errorResponse = new MerchantApiResponse<object?>
                 {
-                    StatusCode = 500,
+                    StatusCode = MapSqlExceptionToStatusCode(sqlException.Number),
                     Data = null
                 };
 
@@ -229,11 +229,11 @@ namespace BsMerchantAPI.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (SqlException sqlException)
             {
                 var errorResponse = new MerchantApiResponse<object?>
                 {
-                    StatusCode = 500,
+                    StatusCode = MapSqlExceptionToStatusCode(sqlException.Number),
                     Data = null
                 };
 
@@ -274,11 +274,11 @@ namespace BsMerchantAPI.Controllers
 
                 return Ok(response);
             }
-            catch
+            catch (SqlException sqlException)
             {
                 var errorResponse = new MerchantApiResponse<object?>
                 {
-                    StatusCode = 500,
+                    StatusCode = MapSqlExceptionToStatusCode(sqlException.Number),
                     Data = null
                 };
 
@@ -288,27 +288,18 @@ namespace BsMerchantAPI.Controllers
 
         private int MapSqlExceptionToStatusCode(int sqlExceptionNumber)
         {
-            switch (sqlExceptionNumber)
+            return sqlExceptionNumber switch
             {
-                case 50000: // Invalid Token, Public token does not exist
-                    return 404;
-                case 50001: // Inactive Token, Public token is already expired
-                    return 401;
-                case 50002: // Already Processed Transaction (should be used in win and cancelbet methods)
-                    return 201;
-                case 50003: // Insufficient Balance
-                    return 402;
-                case 50004: // Duplicated TransactionId (should be used in bet, deposit and withdraw methods)
-                    return 408;
-                case 50005: // Transaction not found in merchant's system
-                    return 200;
-                case 50006: // Invalid Amount
-                    return 407;
-                case 50007: // Invalid Request
-                    return 411;
-                default:
-                    return 500; // Default to Internal Server Error
-            }
+                50000 => 404, // Invalid Token, Public token does not exist
+                50001 => 401, // Inactive Token, Public token is already expired
+                50002 => 201, // Already Processed Transaction (should be used in win and cancelbet methods)
+                50003 => 402, // Insufficient Balance
+                50004 => 408, // Duplicated TransactionId (should be used in bet, deposit and withdraw methods)
+                50005 => 200, // Transaction not found in merchant's system
+                50006 => 407, // Invalid Amount
+                50007 => 411, // Invalid Request
+                _ => 500
+            };
         }
     }
 }
