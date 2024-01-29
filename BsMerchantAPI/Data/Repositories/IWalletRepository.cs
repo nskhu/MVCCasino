@@ -11,7 +11,7 @@ public interface IWalletRepository
     (BetResponseData BetResponse, int StatusCode) AddBetTransaction(string remoteTransactionId, decimal amount,
         string privateToken);
 
-    (BetResponseData BetResponse, int StatusCode) AddWinTransaction(string remoteTransactionId, decimal amount,
+    (BetResponseData WinResponse, int StatusCode) AddWinTransaction(string remoteTransactionId, decimal amount,
         string privateToken);
 
     (TransactionResponseData TransactionData, int StatusCode) AddCancelBetTransaction(string remoteTransactionId,

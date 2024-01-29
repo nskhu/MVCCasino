@@ -84,7 +84,7 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
         return (betResponse, statusCode);
     }
 
-    public (BetResponseData BetResponse, int StatusCode) AddWinTransaction(string remoteTransactionId, decimal amount,
+    public (BetResponseData WinResponse, int StatusCode) AddWinTransaction(string remoteTransactionId, decimal amount,
         string privateToken)
     {
         const string procedureName = "AddWinTransactionProcedure";
@@ -105,13 +105,13 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
         var transactionId = parameters.Get<int>("@TransactionId");
         var newCurrentBalance = parameters.Get<decimal>("@NewCurrentBalance");
 
-        var betResponse = new BetResponseData
+        var winResponse = new BetResponseData
         {
             TransactionId = transactionId,
             CurrentBalance = newCurrentBalance
         };
 
-        return (betResponse, statusCode);
+        return (winResponse, statusCode);
     }
 
     public (TransactionResponseData TransactionData, int StatusCode) AddCancelBetTransaction(
