@@ -1,6 +1,5 @@
 using BsMerchantAPI.Data.Repositories;
 using BsMerchantAPI.Data.Repositories.Dapper;
-using BsMerchantAPI.Services;
 using Microsoft.Data.SqlClient;
 using System.Data;
 
@@ -29,8 +28,6 @@ builder.Services.AddScoped<IDbConnection>(_ => new SqlConnection(connectionStrin
 // add services and repos
 builder.Services.AddTransient<IWalletRepository, WalletRepositoryDapper>();
 builder.Services.AddTransient<IAuthRepository, AuthRepositoryDapper>();
-builder.Services.AddTransient<IMerchantService, MerchantService>();
-builder.Services.AddTransient<IAuthService, AuthService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

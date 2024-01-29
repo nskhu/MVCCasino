@@ -2,5 +2,5 @@
 
 public interface IAuthRepository
 {
-    string GeneratePrivateToken(string publicToken);
+    (string? PrivateToken, int StatusCode) GeneratePrivateToken(string publicToken);
 }

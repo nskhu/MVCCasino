@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BsMerchantAPI.Data.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using BsMerchantAPI.Models.Requests;
 using BsMerchantAPI.Models.Responses;
 using BsMerchantAPI.Models.Responses.ResponseDatas;
-using BsMerchantAPI.Services;
 using Microsoft.Data.SqlClient;
 
 namespace BsMerchantAPI.Controllers
@@ -12,8 +12,8 @@ namespace BsMerchantAPI.Controllers
     [ApiController]
     public class BsMerchantApiController(
         ILogger<BsMerchantApiController> logger,
-        IAuthService authService,
-        IMerchantService merchantService) : ControllerBase
+        IAuthRepository authRepository,
+        IWalletRepository walletRepository) : ControllerBase
     {
         /// <summary>
         /// Authenticate the user and generate a private token.
@@ -35,14 +35,14 @@ namespace BsMerchantAPI.Controllers
         {
             try
             {
-                var privateToken = authService.GeneratePrivateToken(request.PublicToken);
+                var tokenWithStatus = authRepository.GeneratePrivateToken(request.PublicToken);
 
                 var response = new MerchantApiResponse<AuthResponseData>
                 {
-                    StatusCode = 200,
+                    StatusCode = tokenWithStatus.StatusCode,
                     Data = new AuthResponseData()
                     {
-                        PrivateToken = privateToken
+                        PrivateToken = tokenWithStatus.PrivateToken
                     }
                 };
 
@@ -77,7 +77,7 @@ namespace BsMerchantAPI.Controllers
         {
             try
             {
-                var balance = merchantService.GetBalance(request.PrivateToken);
+                var balance = walletRepository.GetBalance(request.PrivateToken);
 
                 var response = new MerchantApiResponse<BalanceResponseData>
                 {
@@ -112,7 +112,7 @@ namespace BsMerchantAPI.Controllers
         {
             try
             {
-                var playerInfo = merchantService.GetPlayerInfo(request.PrivateToken);
+                var playerInfo = walletRepository.GetPlayerInfo(request.PrivateToken);
 
                 var response = new MerchantApiResponse<PlayerInfoData>
                 {
@@ -144,7 +144,7 @@ namespace BsMerchantAPI.Controllers
         {
             try
             {
-                var betResponseData = merchantService.AddBetTransaction(request.RemoteTransactionId, request.Amount,
+                var betResponseData = walletRepository.AddBetTransaction(request.RemoteTransactionId, request.Amount,
                     request.PrivateToken
                 );
 
@@ -178,7 +178,7 @@ namespace BsMerchantAPI.Controllers
         {
             try
             {
-                var winResponseData = merchantService.AddWinTransaction(request.RemoteTransactionId, request.Amount,
+                var winResponseData = walletRepository.AddWinTransaction(request.RemoteTransactionId, request.Amount,
                     request.PrivateToken
                 );
 
@@ -214,7 +214,7 @@ namespace BsMerchantAPI.Controllers
         {
             try
             {
-                var cancelBetResponseData = merchantService.AddCancelBetTransaction(
+                var cancelBetResponseData = walletRepository.AddCancelBetTransaction(
                     request.RemoteTransactionId,
                     request.Amount,
                     request.PrivateToken,
@@ -258,7 +258,7 @@ namespace BsMerchantAPI.Controllers
         {
             try
             {
-                var changeWinResponseData = merchantService.AddChangeWinTransaction(
+                var changeWinResponseData = walletRepository.AddChangeWinTransaction(
                     request.RemoteTransactionId,
                     request.Amount,
                     request.PreviousAmount,

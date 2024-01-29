@@ -8,121 +8,150 @@ namespace BsMerchantAPI.Data.Repositories.Dapper;
 
 public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletRepository
 {
-    public decimal GetBalance(string privateToken)
+    public (decimal Balance, int StatusCode) GetBalance(string privateToken)
     {
         const string procedureName = "GetBalanceProcedure";
-        var parameters = new { PrivateToken = privateToken };
-        var balance =
-            dbConnection.QueryFirstOrDefault<decimal>(procedureName, parameters,
-                commandType: CommandType.StoredProcedure);
+        var parameters = new DynamicParameters();
+        parameters.Add("@PrivateToken", privateToken, DbType.String, ParameterDirection.Input);
+        parameters.Add("@Balance", dbType: DbType.Decimal, direction: ParameterDirection.Output);
+        parameters.Add("@StatusCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        return balance;
+        dbConnection.Execute(procedureName, parameters, commandType: CommandType.StoredProcedure);
+
+        var balance = parameters.Get<decimal>("@Balance");
+        var statusCode = parameters.Get<int>("@StatusCode");
+
+        return (balance, statusCode);
     }
 
-    public PlayerInfoData GetPlayerInfo(string privateToken)
+    public (PlayerInfoData PlayerInfo, int StatusCode) GetPlayerInfo(string privateToken)
     {
         const string procedureName = "GetPlayerInfoProcedure";
-        var parameters = new { PrivateToken = privateToken };
-        var result = dbConnection
-            .Query<PlayerInfoData>(procedureName, parameters, commandType: CommandType.StoredProcedure)
-            .SingleOrDefault();
+        var parameters = new DynamicParameters();
+        parameters.Add("@PrivateToken", privateToken, DbType.String, ParameterDirection.Input);
+        parameters.Add("@UserId", dbType: DbType.String, size: 100, direction: ParameterDirection.Output);
+        parameters.Add("@UserName", dbType: DbType.String, size: 100, direction: ParameterDirection.Output);
+        parameters.Add("@FirstName", dbType: DbType.String, size: 100, direction: ParameterDirection.Output);
+        parameters.Add("@LastName", dbType: DbType.String, size: 100, direction: ParameterDirection.Output);
+        parameters.Add("@Email", dbType: DbType.String, size: 100, direction: ParameterDirection.Output);
+        parameters.Add("@CurrentBalance", dbType: DbType.Decimal, direction: ParameterDirection.Output);
+        parameters.Add("@StatusCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        return result;
+        dbConnection.Execute(procedureName, parameters, commandType: CommandType.StoredProcedure);
+
+        var statusCode = parameters.Get<int>("@StatusCode");
+
+        if (statusCode != 200) return (null, statusCode);
+        var playerInfo = new PlayerInfoData
+        {
+            UserId = parameters.Get<string>("@UserId"),
+            UserName = parameters.Get<string>("@UserName"),
+            FirstName = parameters.Get<string>("@FirstName"),
+            LastName = parameters.Get<string>("@LastName"),
+            Email = parameters.Get<string>("@Email"),
+            CurrentBalance = parameters.Get<decimal>("@CurrentBalance")
+        };
+
+        return (playerInfo, statusCode);
     }
 
-    public BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken)
+    public (BetResponseData BetResponse, int StatusCode) AddBetTransaction(string remoteTransactionId, decimal amount,
+        string privateToken)
     {
-        var parameters = new
-        {
-            RemoteTransactionId = remoteTransactionId,
-            Amount = amount,
-            PrivateToken = privateToken
-        };
-        int transactionId;
-        decimal currentBalance;
+        const string procedureName = "AddBetTransactionProcedure";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RemoteTransactionId", remoteTransactionId, DbType.String, ParameterDirection.Input);
+        parameters.Add("@Amount", amount, DbType.Decimal, ParameterDirection.Input);
+        parameters.Add("@PrivateToken", privateToken, DbType.String, ParameterDirection.Input);
+        parameters.Add("@TransactionId", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        parameters.Add("@NewCurrentBalance", dbType: DbType.Decimal, direction: ParameterDirection.Output);
+        parameters.Add("@StatusCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        try
-        {
-            var result = dbConnection.QuerySingle<dynamic>(
-                "AddBetTransactionProcedure",
-                parameters,
-                commandType: CommandType.StoredProcedure
-            );
-            transactionId = (int)result.TransactionId;
-            currentBalance = (decimal)result.NewCurrentBalance;
-        }
-        catch (SqlException e)
-        {
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.Number);
-            throw;
-        }
+        dbConnection.Execute(procedureName, parameters, commandType: CommandType.StoredProcedure);
 
-        return new BetResponseData
+        var statusCode = parameters.Get<int>("@StatusCode");
+
+        if (statusCode != 200) return (null, statusCode);
+
+        var transactionId = parameters.Get<int>("@TransactionId");
+        var newCurrentBalance = parameters.Get<decimal>("@NewCurrentBalance");
+        var betResponse = new BetResponseData
         {
             TransactionId = transactionId,
-            CurrentBalance = currentBalance
+            CurrentBalance = newCurrentBalance
         };
+
+        return (betResponse, statusCode);
     }
 
-    public BetResponseData? AddWinTransaction(string remoteTransactionId, decimal amount, string privateToken)
+    public (BetResponseData BetResponse, int StatusCode) AddWinTransaction(string remoteTransactionId, decimal amount,
+        string privateToken)
     {
-        var parameters = new
-        {
-            RemoteTransactionId = remoteTransactionId,
-            Amount = amount,
-            PrivateToken = privateToken
-        };
-        int transactionId;
-        decimal currentBalance;
+        const string procedureName = "AddWinTransactionProcedure";
+        var parameters = new DynamicParameters();
+        parameters.Add("@RemoteTransactionId", remoteTransactionId, DbType.String, ParameterDirection.Input);
+        parameters.Add("@Amount", amount, DbType.Decimal, ParameterDirection.Input);
+        parameters.Add("@PrivateToken", privateToken, DbType.String, ParameterDirection.Input);
+        parameters.Add("@TransactionId", dbType: DbType.Int32, direction: ParameterDirection.Output);
+        parameters.Add("@NewCurrentBalance", dbType: DbType.Decimal, direction: ParameterDirection.Output);
+        parameters.Add("@StatusCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        try
-        {
-            var result = dbConnection.QuerySingle<dynamic>(
-                "AddWinTransactionProcedure",
-                parameters,
-                commandType: CommandType.StoredProcedure
-            );
-            transactionId = (int)result.TransactionId;
-            currentBalance = (decimal)result.NewCurrentBalance;
-        }
-        catch (SqlException e)
-        {
-            Console.WriteLine(e.Message);
-            Console.WriteLine(e.Number);
-            throw;
-        }
+        dbConnection.Execute(procedureName, parameters, commandType: CommandType.StoredProcedure);
 
-        return new BetResponseData
+        var statusCode = parameters.Get<int>("@StatusCode");
+
+        if (statusCode != 200) return (null, statusCode);
+
+        var transactionId = parameters.Get<int>("@TransactionId");
+        var newCurrentBalance = parameters.Get<decimal>("@NewCurrentBalance");
+
+        var betResponse = new BetResponseData
         {
             TransactionId = transactionId,
-            CurrentBalance = currentBalance
+            CurrentBalance = newCurrentBalance
         };
+
+        return (betResponse, statusCode);
     }
 
-    public TransactionResponseData? AddCancelBetTransaction(string remoteTransactionId, decimal amount,
+    public (TransactionResponseData TransactionData, int StatusCode) AddCancelBetTransaction(
+        string remoteTransactionId,
+        decimal amount,
         string privateToken,
         string betTransactionId)
     {
-        var parameters = new
-        {
-            RemoteTransactionId = remoteTransactionId,
-            Amount = amount,
-            PrivateToken = privateToken,
-            BetTransactionId = betTransactionId
-        };
-        string transactionId;
-        decimal currentBalance;
+        var parameters = new DynamicParameters();
+        parameters.Add("@RemoteTransactionId", remoteTransactionId, DbType.String, ParameterDirection.Input);
+        parameters.Add("@Amount", amount, DbType.Decimal, ParameterDirection.Input);
+        parameters.Add("@PrivateToken", privateToken, DbType.String, ParameterDirection.Input);
+        parameters.Add("@BetTransactionId", betTransactionId, DbType.String, ParameterDirection.Input);
+        parameters.Add("@RemoteTransactionIdOut", dbType: DbType.String, size: 100,
+            direction: ParameterDirection.Output);
+        parameters.Add("@NewCurrentBalance", dbType: DbType.Decimal, direction: ParameterDirection.Output);
+        parameters.Add("@StatusCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
         try
         {
-            var result = dbConnection.QuerySingle<dynamic>(
+            dbConnection.Execute(
                 "AddCancelBetTransactionProcedure",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
-            transactionId = (string)result.RemoteTransactionId;
-            currentBalance = (decimal)result.NewCurrentBalance;
+
+            var statusCode = parameters.Get<int>("@StatusCode");
+
+            if (statusCode != 200)
+            {
+                return (null, statusCode);
+            }
+
+            var transactionData = new TransactionResponseData
+            {
+                TransactionId = parameters.Get<string>("@RemoteTransactionIdOut"),
+                CurrentBalance = parameters.Get<decimal>("@NewCurrentBalance")
+            };
+
+            return (transactionData, statusCode);
         }
         catch (SqlException e)
         {
@@ -130,38 +159,49 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
             Console.WriteLine(e.Number);
             throw;
         }
-
-        return new TransactionResponseData
-        {
-            TransactionId = transactionId,
-            CurrentBalance = currentBalance
-        };
     }
 
-    public TransactionResponseData? AddChangeWinTransaction(string remoteTransactionId, decimal amount,
+
+    public (TransactionResponseData TransactionData, int StatusCode) AddChangeWinTransaction(
+        string remoteTransactionId,
+        decimal amount,
         decimal previousAmount,
-        string privateToken, string previousTransactionId)
+        string privateToken,
+        string previousTransactionId)
     {
-        var parameters = new
-        {
-            RemoteTransactionId = remoteTransactionId,
-            Amount = amount,
-            PreviousAmount = previousAmount,
-            PrivateToken = privateToken,
-            BetTransactionId = previousTransactionId
-        };
-        string transactionId;
-        decimal currentBalance;
+        var parameters = new DynamicParameters();
+        parameters.Add("@RemoteTransactionId", remoteTransactionId, DbType.String, ParameterDirection.Input);
+        parameters.Add("@Amount", amount, DbType.Decimal, ParameterDirection.Input);
+        parameters.Add("@PreviousAmount", previousAmount, DbType.Decimal, ParameterDirection.Input);
+        parameters.Add("@PrivateToken", privateToken, DbType.String, ParameterDirection.Input);
+        parameters.Add("@PreviousTransactionId", previousTransactionId, DbType.String, ParameterDirection.Input);
+        parameters.Add("@RemoteTransactionIdOut", dbType: DbType.String, size: 100,
+            direction: ParameterDirection.Output);
+        parameters.Add("@NewCurrentBalance", dbType: DbType.Decimal, direction: ParameterDirection.Output);
+        parameters.Add("@StatusCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
         try
         {
-            var result = dbConnection.QuerySingle<dynamic>(
+            dbConnection.Execute(
                 "AddChangeWinTransactionProcedure",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
-            transactionId = (string)result.RemoteTransactionId;
-            currentBalance = (decimal)result.NewCurrentBalance;
+
+            var statusCode = parameters.Get<int>("@StatusCode");
+
+            if (statusCode != 200)
+            {
+                return (null, statusCode);
+            }
+
+            var transactionData = new TransactionResponseData
+            {
+                TransactionId = parameters.Get<string>("@RemoteTransactionIdOut"),
+                CurrentBalance = parameters.Get<decimal>("@NewCurrentBalance")
+            };
+
+            return (transactionData, statusCode);
         }
         catch (SqlException e)
         {
@@ -169,11 +209,5 @@ public class WalletRepositoryDapper(IDbConnection dbConnection) : IWalletReposit
             Console.WriteLine(e.Number);
             throw;
         }
-
-        return new TransactionResponseData
-        {
-            TransactionId = transactionId,
-            CurrentBalance = currentBalance
-        };
     }
 }

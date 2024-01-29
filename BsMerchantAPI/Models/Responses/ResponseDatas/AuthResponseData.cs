@@ -2,5 +2,5 @@
 
 public class AuthResponseData
 {
-    public string PrivateToken { get; set; }
+    public string? PrivateToken { get; set; }
 }

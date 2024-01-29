@@ -4,17 +4,21 @@ namespace BsMerchantAPI.Data.Repositories;
 
 public interface IWalletRepository
 {
-    decimal GetBalance(string privateToken);
+    (decimal Balance, int StatusCode) GetBalance(string privateToken);
 
-    PlayerInfoData GetPlayerInfo(string privateToken);
+    (PlayerInfoData PlayerInfo, int StatusCode) GetPlayerInfo(string privateToken);
 
-    BetResponseData AddBetTransaction(string remoteTransactionId, decimal amount, string privateToken);
+    (BetResponseData BetResponse, int StatusCode) AddBetTransaction(string remoteTransactionId, decimal amount,
+        string privateToken);
 
-    BetResponseData? AddWinTransaction(string remoteTransactionId, decimal amount, string privateToken);
+    (BetResponseData BetResponse, int StatusCode) AddWinTransaction(string remoteTransactionId, decimal amount,
+        string privateToken);
 
-    TransactionResponseData? AddCancelBetTransaction(string remoteTransactionId, decimal amount, string privateToken,
+    (TransactionResponseData TransactionData, int StatusCode) AddCancelBetTransaction(string remoteTransactionId,
+        decimal amount, string privateToken,
         string betTransactionId);
 
-    TransactionResponseData? AddChangeWinTransaction(string remoteTransactionId, decimal amount, decimal previousAmount,
+    (TransactionResponseData TransactionData, int StatusCode) AddChangeWinTransaction(string remoteTransactionId,
+        decimal amount, decimal previousAmount,
         string privateToken, string previousTransactionId);
 }

@@ -1,18 +1,24 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Dapper;
 
 namespace BsMerchantAPI.Data.Repositories.Dapper;
 
 public class AuthRepositoryDapper(IDbConnection dbConnection) : IAuthRepository
 {
-    public string GeneratePrivateToken(string publicToken)
+    public (string? PrivateToken, int StatusCode) GeneratePrivateToken(string publicToken)
     {
         const string procedureName = "GenerateOrUpdatePrivateTokenProcedure";
-        var parameters = new { PublicToken = publicToken };
-        var privateToken =
-            dbConnection.QueryFirstOrDefault<string>(procedureName, parameters,
-                commandType: CommandType.StoredProcedure);
+        var parameters = new DynamicParameters();
+        parameters.Add("@PublicToken", publicToken, DbType.String, ParameterDirection.Input);
+        parameters.Add("@PrivateToken", dbType: DbType.String, direction: ParameterDirection.Output);
+        parameters.Add("@StatusCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        return privateToken;
+        dbConnection.Execute(procedureName, parameters, commandType: CommandType.StoredProcedure);
+
+        var privateToken = parameters.Get<string?>("@PrivateToken");
+        var statusCode = parameters.Get<int>("@StatusCode");
+
+        return (privateToken, statusCode);
     }
 }
